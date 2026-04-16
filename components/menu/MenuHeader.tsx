@@ -11,7 +11,10 @@ export default function MenuHeader({ restaurante, mesa }: MenuHeaderProps) {
       style={{ background: 'linear-gradient(135deg, #0A1628 0%, #0D3BB5 60%, #1A6BFF 100%)' }}>
       <div className="max-w-lg mx-auto flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2.5">
-          <Image src="/logo.png" alt="lynkfood" width={32} height={32} className="object-contain" />
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center overflow-hidden"
+            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <Image src="/logo.png" alt="lynkfood" width={28} height={28} className="object-contain" />
+          </div>
           <div>
             <h1 className="text-sm font-bold text-white leading-tight">{restaurante}</h1>
             <p className="text-xs text-blue-300 mt-0.5">Menú digital</p>
