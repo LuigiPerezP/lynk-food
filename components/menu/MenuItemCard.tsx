@@ -12,9 +12,7 @@ interface MenuItemCardProps {
 
 function formatBs(usd: number, tasa: number): string {
   const bs = usd * tasa
-  if (bs >= 1_000_000) return `Bs. ${(bs / 1_000_000).toFixed(2)}M`
-  if (bs >= 1_000) return `Bs. ${(bs / 1_000).toFixed(1)}k`
-  return `Bs. ${bs.toFixed(2)}`
+  return `Bs. ${bs.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
 export default function MenuItemCard({ item, quantity, onAdd, onRemove }: MenuItemCardProps) {
