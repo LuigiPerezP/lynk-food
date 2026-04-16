@@ -30,7 +30,7 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving }: Menu
     await onSave(form)
   }
 
-  const field = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-400'
+  const field = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400'
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
@@ -78,7 +78,7 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving }: Menu
         </button>
         <button type="submit" disabled={saving}
           className="px-4 py-2 text-sm font-semibold text-white rounded-lg disabled:opacity-50 transition-colors"
-          style={{ backgroundColor: '#1D9E75' }}>
+          style={{ backgroundColor: '#1A6BFF' }}>
           {saving ? 'Guardando…' : initial?.nombre ? 'Guardar cambios' : 'Agregar plato'}
         </button>
       </div>

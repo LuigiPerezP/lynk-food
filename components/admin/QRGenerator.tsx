@@ -25,9 +25,9 @@ export default function QRGenerator({ mesa, baseUrl, restaurante = 'lynk.food' }
         height: 220,
         data: url,
         margin: 8,
-        dotsOptions: { type: 'rounded', color: '#1D9E75' },
-        cornersSquareOptions: { type: 'extra-rounded', color: '#1D9E75' },
-        cornersDotOptions: { color: '#1D9E75' },
+        dotsOptions: { type: 'rounded', color: '#1A6BFF' },
+        cornersSquareOptions: { type: 'extra-rounded', color: '#1A6BFF' },
+        cornersDotOptions: { color: '#1A6BFF' },
         backgroundOptions: { color: '#ffffff' },
         qrOptions: { errorCorrectionLevel: 'H' },
       })
@@ -58,10 +58,10 @@ export default function QRGenerator({ mesa, baseUrl, restaurante = 'lynk.food' }
     }
     .card {
       display: flex; flex-direction: column; align-items: center;
-      border: 2px solid #1D9E75; border-radius: 16px; padding: 24px 32px; gap: 12px;
+      border: 2px solid #1A6BFF; border-radius: 16px; padding: 24px 32px; gap: 12px;
       width: 300px;
     }
-    .logo { font-size: 14px; font-weight: 700; color: #1D9E75; letter-spacing: 0.05em; }
+    .logo { font-size: 14px; font-weight: 700; color: #1A6BFF; letter-spacing: 0.05em; }
     img { width: 220px; height: 220px; }
     .mesa { font-size: 28px; font-weight: 900; color: #111; }
     .sub { font-size: 11px; color: #666; }
@@ -84,8 +84,8 @@ export default function QRGenerator({ mesa, baseUrl, restaurante = 'lynk.food' }
 
   return (
     <div className="flex flex-col items-center gap-3 p-5 bg-white rounded-2xl border-2 shadow-sm"
-      style={{ borderColor: '#1D9E75' }}>
-      <p className="text-xs font-bold tracking-widest uppercase" style={{ color: '#1D9E75' }}>
+      style={{ borderColor: '#1A6BFF' }}>
+      <p className="text-xs font-bold tracking-widest uppercase" style={{ color: '#1A6BFF' }}>
         {restaurante}
       </p>
       <div ref={canvasRef} />
@@ -99,7 +99,7 @@ export default function QRGenerator({ mesa, baseUrl, restaurante = 'lynk.food' }
         </button>
         <button onClick={handlePrint}
           className="flex-1 text-xs py-2 rounded-lg text-white font-medium transition-colors"
-          style={{ backgroundColor: '#1D9E75' }}>
+          style={{ backgroundColor: '#1A6BFF' }}>
           🖨 Imprimir
         </button>
       </div>

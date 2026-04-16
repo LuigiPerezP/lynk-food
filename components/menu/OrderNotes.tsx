@@ -15,7 +15,7 @@ export default function OrderNotes({ value, onChange }: OrderNotesProps) {
         placeholder="Ej: sin cebolla, alergia al maní, término medio…"
         rows={3}
         className="w-full text-sm border border-gray-200 rounded-xl px-3 py-2.5 resize-none focus:outline-none focus:ring-2 placeholder:text-gray-400"
-        style={{ focusRingColor: '#1D9E75' } as React.CSSProperties}
+        style={{ focusRingColor: '#1A6BFF' } as React.CSSProperties}
       />
     </div>
   )

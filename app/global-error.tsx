@@ -12,7 +12,7 @@ export default function GlobalError({ reset }: { reset: () => void }) {
           </p>
           <button
             onClick={reset}
-            style={{ padding: '12px 24px', borderRadius: 12, background: '#1D9E75', color: '#fff', fontWeight: 600, border: 'none', cursor: 'pointer', fontSize: 14 }}
+            style={{ padding: '12px 24px', borderRadius: 12, background: '#1A6BFF', color: '#fff', fontWeight: 600, border: 'none', cursor: 'pointer', fontSize: 14 }}
           >
             Recargar
           </button>

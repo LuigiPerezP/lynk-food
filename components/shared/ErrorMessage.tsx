@@ -12,7 +12,7 @@ export default function ErrorMessage({ message, onRetry }: ErrorMessageProps) {
         <button
           onClick={onRetry}
           className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity"
-          style={{ backgroundColor: '#1D9E75' }}
+          style={{ backgroundColor: '#1A6BFF' }}
         >
           Reintentar
         </button>

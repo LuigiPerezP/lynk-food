@@ -34,7 +34,7 @@ export default function CartSummary({ items, total, notas, loading, onSubmit }: 
         {/* Total row */}
         <div className="flex items-center justify-between py-2.5 border-t border-gray-100 mb-3">
           <span className="font-bold text-gray-900">Total</span>
-          <span className="text-xl font-extrabold" style={{ color: '#0F6B4F' }}>
+          <span className="text-xl font-extrabold" style={{ color: '#0D3BB5' }}>
             ${total.toFixed(2)}
           </span>
         </div>
@@ -44,8 +44,8 @@ export default function CartSummary({ items, total, notas, loading, onSubmit }: 
           disabled={loading}
           className="w-full py-3.5 rounded-2xl font-bold text-white text-sm transition-all disabled:opacity-50 active:scale-[0.98]"
           style={{
-            background: loading ? '#9ca3af' : 'linear-gradient(135deg, #0F6B4F, #1D9E75)',
-            boxShadow: loading ? 'none' : '0 4px 20px rgba(29,158,117,0.4)',
+            background: loading ? '#9ca3af' : 'linear-gradient(135deg, #0D3BB5, #1A6BFF)',
+            boxShadow: loading ? 'none' : '0 4px 20px rgba(26,107,255,0.4)',
           }}
         >
           {loading ? 'Enviando pedido…' : `Enviar pedido · $${total.toFixed(2)}`}

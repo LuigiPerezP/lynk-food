@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 :root {
-  --brand: #1D9E75;
-  --brand-dark: #0F6B4F;
-  --brand-light: #E8F7F2;
+  --brand: #1A6BFF;
+  --brand-dark: #0D3BB5;
+  --brand-light: #EEF2FF;
 }
 
 @theme inline {

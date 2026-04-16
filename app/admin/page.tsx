@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
+import Image from 'next/image'
 import LogoutButton from '@/components/shared/LogoutButton'
 
 const MenuManager = dynamic(() => import('@/components/admin/MenuManager'), { ssr: false })
@@ -30,15 +31,15 @@ export default function AdminPage() {
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="text-white px-5 py-4 flex items-center justify-between shadow-lg"
-        style={{ background: 'linear-gradient(135deg, #0a2e1f 0%, #0F6B4F 60%, #1D9E75 100%)' }}>
+        style={{ background: 'linear-gradient(135deg, #0A1628 0%, #0D3BB5 60%, #1A6BFF 100%)' }}>
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
-            <span className="text-base">⚙️</span>
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center overflow-hidden"
+            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <Image src="/logo.png" alt="lynkfood" width={28} height={28} className="object-contain" />
           </div>
           <div>
             <p className="text-sm font-bold leading-none">Administración</p>
-            <p className="text-xs mt-0.5" style={{ color: '#6EE7B7' }}>lynk.food</p>
+            <p className="text-xs mt-0.5" style={{ color: '#93C5FD' }}>lynk.food</p>
           </div>
         </div>
         <LogoutButton className="text-xs px-3 py-1.5 rounded-lg transition-colors"
@@ -53,8 +54,8 @@ export default function AdminPage() {
             onClick={() => setTab(t.id)}
             className="flex items-center gap-1.5 px-5 py-3.5 text-sm font-semibold border-b-2 transition-colors"
             style={tab === t.id ? {
-              borderColor: '#1D9E75',
-              color: '#0F6B4F',
+              borderColor: '#1A6BFF',
+              color: '#0D3BB5',
             } : {
               borderColor: 'transparent',
               color: '#9CA3AF',

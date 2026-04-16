@@ -58,7 +58,7 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
         <h2 className="text-lg font-bold text-gray-800">Menú del restaurante</h2>
         <button onClick={() => { setShowForm(true); setEditing(null) }}
           className="px-4 py-2 text-sm font-semibold text-white rounded-lg"
-          style={{ backgroundColor: '#1D9E75' }}>
+          style={{ backgroundColor: '#1A6BFF' }}>
           + Agregar plato
         </button>
       </div>
@@ -99,12 +99,12 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
                           onChange={(e) => setEditingPrice({ id: item.id, value: e.target.value })}
                           onBlur={() => handlePriceSave(item.id)}
                           onKeyDown={(e) => e.key === 'Enter' && handlePriceSave(item.id)}
-                          className="w-16 border border-green-400 rounded px-1 py-0.5 text-sm text-center focus:outline-none"
+                          className="w-16 border border-blue-400 rounded px-1 py-0.5 text-sm text-center focus:outline-none"
                         />
                       </div>
                     ) : (
                       <button onClick={() => setEditingPrice({ id: item.id, value: String(item.precio) })}
-                        className="text-right hover:text-green-600 transition-colors"
+                        className="text-right hover:text-blue-600 transition-colors"
                         title="Click para editar precio">
                         <p className="text-sm font-bold text-gray-700">${item.precio.toFixed(2)}</p>
                         {tasa && (
@@ -117,7 +117,7 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
                     <button onClick={() => toggleDisponible(item.id, !item.disponible)}
                       className={`text-xs px-2 py-1 rounded-full font-medium transition-colors ${
                         item.disponible
-                          ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                          ? 'bg-blue-100 text-blue-700 hover:bg-blue-200'
                           : 'bg-gray-100 text-gray-500 hover:bg-gray-200'
                       }`}>
                       {item.disponible ? 'Activo' : 'Oculto'}

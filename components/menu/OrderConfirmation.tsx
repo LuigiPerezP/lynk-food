@@ -8,12 +8,12 @@ interface OrderConfirmationProps {
 export default function OrderConfirmation({ orderId, mesa, hora, onBack }: OrderConfirmationProps) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center px-6 text-center"
-      style={{ background: 'linear-gradient(160deg, #f0fdf4 0%, #dcfce7 100%)' }}>
+      style={{ background: 'linear-gradient(160deg, #EEF2FF 0%, #DBEAFE 100%)' }}>
 
       {/* Check icon */}
       <div className="animate-check-pop mb-6">
         <div className="w-24 h-24 rounded-full flex items-center justify-center shadow-xl"
-          style={{ background: 'linear-gradient(135deg, #0F6B4F, #1D9E75)', boxShadow: '0 8px 30px rgba(29,158,117,0.4)' }}>
+          style={{ background: 'linear-gradient(135deg, #0D3BB5, #1A6BFF)', boxShadow: '0 8px 30px rgba(26,107,255,0.4)' }}>
           <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
             <polyline points="20 6 9 17 4 12" />
           </svg>
@@ -31,8 +31,8 @@ export default function OrderConfirmation({ orderId, mesa, hora, onBack }: Order
       <div className="animate-fade-in-up w-full max-w-xs rounded-3xl overflow-hidden shadow-lg mb-8"
         style={{ animationDelay: '0.1s' }}>
         <div className="px-5 py-3"
-          style={{ background: 'linear-gradient(135deg, #0a2e1f, #0F6B4F)' }}>
-          <p className="text-green-300 text-xs font-semibold tracking-widest uppercase">Comprobante</p>
+          style={{ background: 'linear-gradient(135deg, #0A1628, #0D3BB5)' }}>
+          <p className="text-blue-300 text-xs font-semibold tracking-widest uppercase">Comprobante</p>
         </div>
         <div className="bg-white px-5 py-4 space-y-3">
           {[
@@ -53,7 +53,7 @@ export default function OrderConfirmation({ orderId, mesa, hora, onBack }: Order
       <button
         onClick={onBack}
         className="px-8 py-3.5 rounded-2xl font-bold text-white text-sm active:scale-95 transition-all"
-        style={{ background: 'linear-gradient(135deg, #0F6B4F, #1D9E75)', boxShadow: '0 4px 20px rgba(29,158,117,0.35)' }}
+        style={{ background: 'linear-gradient(135deg, #0D3BB5, #1A6BFF)', boxShadow: '0 4px 20px rgba(26,107,255,0.35)' }}
       >
         Volver al menú
       </button>

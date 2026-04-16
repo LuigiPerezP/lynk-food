@@ -25,7 +25,7 @@ export default function TableManager({ baseUrl, totalMesas = 15 }: TableManagerP
           <input
             type="number" min="1" max="99" value={customTotal}
             onChange={(e) => setCustomTotal(parseInt(e.target.value) || 1)}
-            className="w-16 border border-gray-200 rounded-lg px-2 py-1 text-center text-sm focus:outline-none focus:ring-2 focus:ring-green-400"
+            className="w-16 border border-gray-200 rounded-lg px-2 py-1 text-center text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           />
         </div>
       </div>
@@ -38,9 +38,9 @@ export default function TableManager({ baseUrl, totalMesas = 15 }: TableManagerP
             className={`aspect-square rounded-xl text-sm font-bold transition-all border-2 ${
               selectedMesa === n
                 ? 'text-white border-transparent'
-                : 'bg-white text-gray-700 border-gray-200 hover:border-green-400'
+                : 'bg-white text-gray-700 border-gray-200 hover:border-blue-400'
             }`}
-            style={selectedMesa === n ? { backgroundColor: '#1D9E75', borderColor: '#1D9E75' } : {}}
+            style={selectedMesa === n ? { backgroundColor: '#1A6BFF', borderColor: '#1A6BFF' } : {}}
           >
             {n}
           </button>

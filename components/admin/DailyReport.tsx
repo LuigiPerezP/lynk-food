@@ -30,7 +30,7 @@ function topItems(orders: Order[]) {
 const STATUS_COLOR: Record<string, string> = {
   nuevo: 'bg-amber-100 text-amber-700',
   preparando: 'bg-blue-100 text-blue-700',
-  listo: 'bg-green-100 text-green-700',
+  listo: 'bg-blue-100 text-blue-700',
   entregado: 'bg-gray-100 text-gray-600',
 }
 
@@ -65,7 +65,7 @@ export default function DailyReport({ restauranteId }: DailyReportProps) {
           <p className="text-xs text-gray-500 mt-0.5">Entregados</p>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-          <p className="text-2xl font-black" style={{ color: '#1D9E75' }}>
+          <p className="text-2xl font-black" style={{ color: '#1A6BFF' }}>
             ${totalRecaudado.toFixed(2)}
           </p>
           {tasa && (
@@ -87,7 +87,7 @@ export default function DailyReport({ restauranteId }: DailyReportProps) {
                 <span className="flex-1 text-sm text-gray-800">{item.nombre}</span>
                 <span className="text-sm font-semibold text-gray-700">{item.cantidad}×</span>
                 <div className="text-right">
-                  <p className="text-sm font-bold" style={{ color: '#1D9E75' }}>${item.total.toFixed(2)}</p>
+                  <p className="text-sm font-bold" style={{ color: '#1A6BFF' }}>${item.total.toFixed(2)}</p>
                   {tasa && <p className="text-xs text-gray-400">{formatBs(item.total, tasa)}</p>}
                 </div>
               </div>

@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
+import Image from 'next/image'
 
 function LoginForm() {
   const router = useRouter()
@@ -41,16 +42,16 @@ function LoginForm() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4"
-      style={{ background: 'linear-gradient(135deg, #0a2e1f 0%, #0F6B4F 50%, #1D9E75 100%)' }}>
+      style={{ background: 'linear-gradient(135deg, #0A1628 0%, #0D3BB5 50%, #1A6BFF 100%)' }}>
       <div className="animate-scale-in w-full max-w-sm">
         {/* Brand */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl mb-4 shadow-xl"
-            style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
-            <span className="text-2xl">🍴</span>
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 shadow-xl"
+            style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}>
+            <Image src="/logo.png" alt="lynkfood" width={44} height={44} className="object-contain" />
           </div>
-          <h1 className="text-2xl font-bold text-white">lynk<span style={{ color: '#6EE7B7' }}>.food</span></h1>
-          <p className="text-green-300 text-sm mt-1">Acceso al panel</p>
+          <h1 className="text-2xl font-bold text-white">lynk<span style={{ color: '#93C5FD' }}>.food</span></h1>
+          <p className="text-blue-300 text-sm mt-1">Acceso al panel</p>
         </div>
 
         {/* Card */}
@@ -68,7 +69,7 @@ function LoginForm() {
                 style={{
                   background: role === r.id ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.08)',
                   border: role === r.id ? '2px solid transparent' : '2px solid rgba(255,255,255,0.1)',
-                  color: role === r.id ? '#0F6B4F' : 'rgba(255,255,255,0.7)',
+                  color: role === r.id ? '#0D3BB5' : 'rgba(255,255,255,0.7)',
                 }}
               >
                 <span className="text-xl">{r.emoji}</span>
@@ -94,9 +95,9 @@ function LoginForm() {
                   background: 'rgba(255,255,255,0.1)',
                   border: '1.5px solid rgba(255,255,255,0.15)',
                   color: 'white',
-                  caretColor: '#6EE7B7',
+                  caretColor: '#93C5FD',
                 }}
-                onFocus={(e) => (e.target.style.borderColor = 'rgba(110,231,183,0.6)')}
+                onFocus={(e) => (e.target.style.borderColor = 'rgba(147,197,253,0.6)')}
                 onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.15)')}
               />
             </div>
@@ -111,7 +112,7 @@ function LoginForm() {
               type="submit"
               disabled={loading || !password}
               className="w-full py-3.5 rounded-xl font-semibold text-sm transition-all disabled:opacity-40 active:scale-[0.98]"
-              style={{ background: 'linear-gradient(135deg, #1D9E75, #16a34a)', color: 'white', boxShadow: '0 4px 20px rgba(29,158,117,0.4)' }}
+              style={{ background: 'linear-gradient(135deg, #1A6BFF, #2563EB)', color: 'white', boxShadow: '0 4px 20px rgba(26,107,255,0.4)' }}
             >
               {loading ? 'Verificando…' : 'Ingresar'}
             </button>

@@ -22,7 +22,7 @@ export default function MenuItemCard({ item, quantity, onAdd, onRemove }: MenuIt
     <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex items-stretch transition-shadow hover:shadow-md">
       {/* Emoji panel */}
       <div className="w-20 shrink-0 flex items-center justify-center text-3xl"
-        style={{ background: 'linear-gradient(135deg, #E8F7F2, #d1fae5)' }}>
+        style={{ background: 'linear-gradient(135deg, #EEF2FF, #DBEAFE)' }}>
         {item.emoji}
       </div>
 
@@ -35,7 +35,7 @@ export default function MenuItemCard({ item, quantity, onAdd, onRemove }: MenuIt
           )}
           <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
             <span className="px-2 py-0.5 rounded-full text-xs font-bold"
-              style={{ background: '#E8F7F2', color: '#0F6B4F' }}>
+              style={{ background: '#EEF2FF', color: '#0D3BB5' }}>
               ${item.precio.toFixed(2)}
             </span>
             {tasa && (
@@ -53,7 +53,7 @@ export default function MenuItemCard({ item, quantity, onAdd, onRemove }: MenuIt
               <button
                 onClick={onRemove}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold transition-all active:scale-90"
-                style={{ background: '#E8F7F2', color: '#0F6B4F' }}
+                style={{ background: '#EEF2FF', color: '#0D3BB5' }}
               >
                 −
               </button>
@@ -61,7 +61,7 @@ export default function MenuItemCard({ item, quantity, onAdd, onRemove }: MenuIt
               <button
                 onClick={onAdd}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold text-white transition-all active:scale-90 shadow-md"
-                style={{ background: 'linear-gradient(135deg, #1D9E75, #16a34a)', boxShadow: '0 2px 8px rgba(29,158,117,0.35)' }}
+                style={{ background: 'linear-gradient(135deg, #1A6BFF, #2563EB)', boxShadow: '0 2px 8px rgba(26,107,255,0.35)' }}
               >
                 +
               </button>
@@ -70,7 +70,7 @@ export default function MenuItemCard({ item, quantity, onAdd, onRemove }: MenuIt
             <button
               onClick={onAdd}
               className="w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold text-white transition-all active:scale-90 shadow-md"
-              style={{ background: 'linear-gradient(135deg, #1D9E75, #16a34a)', boxShadow: '0 2px 8px rgba(29,158,117,0.35)' }}
+              style={{ background: 'linear-gradient(135deg, #1A6BFF, #2563EB)', boxShadow: '0 2px 8px rgba(26,107,255,0.35)' }}
             >
               +
             </button>
