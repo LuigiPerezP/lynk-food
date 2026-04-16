@@ -1,8 +1,13 @@
 'use client'
 
 import { useDailyOrders } from '@/lib/hooks/useDailyOrders'
+import { useTasaBCV } from '@/lib/hooks/useTasaBCV'
 import { timeLabel } from '@/lib/time'
 import type { Order } from '@/lib/types'
+
+function formatBs(usd: number, tasa: number): string {
+  return `Bs. ${(usd * tasa).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
 
 interface DailyReportProps {
   restauranteId: string
@@ -31,6 +36,7 @@ const STATUS_COLOR: Record<string, string> = {
 
 export default function DailyReport({ restauranteId }: DailyReportProps) {
   const { orders, loading } = useDailyOrders(restauranteId)
+  const { tasa } = useTasaBCV()
 
   if (loading) {
     return <p className="text-sm text-gray-400 text-center py-10">Cargando reporte…</p>
@@ -62,6 +68,9 @@ export default function DailyReport({ restauranteId }: DailyReportProps) {
           <p className="text-2xl font-black" style={{ color: '#1D9E75' }}>
             ${totalRecaudado.toFixed(2)}
           </p>
+          {tasa && (
+            <p className="text-xs text-gray-400 mt-0.5">{formatBs(totalRecaudado, tasa)}</p>
+          )}
           <p className="text-xs text-gray-500 mt-0.5">Recaudado</p>
         </div>
       </div>
@@ -77,9 +86,10 @@ export default function DailyReport({ restauranteId }: DailyReportProps) {
                 <span className="text-xl">{item.emoji}</span>
                 <span className="flex-1 text-sm text-gray-800">{item.nombre}</span>
                 <span className="text-sm font-semibold text-gray-700">{item.cantidad}×</span>
-                <span className="text-sm font-bold" style={{ color: '#1D9E75' }}>
-                  ${item.total.toFixed(2)}
-                </span>
+                <div className="text-right">
+                  <p className="text-sm font-bold" style={{ color: '#1D9E75' }}>${item.total.toFixed(2)}</p>
+                  {tasa && <p className="text-xs text-gray-400">{formatBs(item.total, tasa)}</p>}
+                </div>
               </div>
             ))}
           </div>
@@ -112,6 +122,7 @@ export default function DailyReport({ restauranteId }: DailyReportProps) {
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-bold text-gray-800">${subtotal.toFixed(2)}</p>
+                  {tasa && <p className="text-xs text-gray-400">{formatBs(subtotal, tasa)}</p>}
                   <p className="text-xs text-gray-400">
                     {order.creadoEn ? timeLabel(order.creadoEn) : ''}
                   </p>

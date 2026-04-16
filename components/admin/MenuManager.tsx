@@ -3,8 +3,13 @@
 import { useState } from 'react'
 import { useMenu } from '@/lib/hooks/useMenu'
 import { useAdminMenu } from '@/lib/hooks/useAdminMenu'
+import { useTasaBCV } from '@/lib/hooks/useTasaBCV'
 import MenuItemForm from './MenuItemForm'
 import type { MenuItem } from '@/lib/types'
+
+function formatBs(usd: number, tasa: number): string {
+  return `Bs. ${(usd * tasa).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
 
 const CATEGORIA_LABEL: Record<string, string> = {
   entradas: 'Entradas', platos: 'Platos', bebidas: 'Bebidas', postres: 'Postres',
@@ -17,6 +22,7 @@ interface MenuManagerProps {
 export default function MenuManager({ restauranteId }: MenuManagerProps) {
   const { menu } = useMenu(restauranteId, false)
   const { addItem, updateItem, toggleDisponible, deleteItem, saving } = useAdminMenu(restauranteId)
+  const { tasa } = useTasaBCV()
 
   const [showForm, setShowForm] = useState(false)
   const [editing, setEditing] = useState<MenuItem | null>(null)
@@ -98,9 +104,12 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
                       </div>
                     ) : (
                       <button onClick={() => setEditingPrice({ id: item.id, value: String(item.precio) })}
-                        className="text-sm font-bold text-gray-700 hover:text-green-600 transition-colors"
+                        className="text-right hover:text-green-600 transition-colors"
                         title="Click para editar precio">
-                        ${item.precio.toFixed(2)}
+                        <p className="text-sm font-bold text-gray-700">${item.precio.toFixed(2)}</p>
+                        {tasa && (
+                          <p className="text-xs text-gray-400">{formatBs(item.precio, tasa)}</p>
+                        )}
                       </button>
                     )}
 
