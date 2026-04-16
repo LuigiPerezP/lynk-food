@@ -1,4 +1,7 @@
+'use client'
+
 import type { MenuItem } from '@/lib/types'
+import { useTasaBCV } from '@/lib/hooks/useTasaBCV'
 
 interface MenuItemCardProps {
   item: MenuItem
@@ -7,7 +10,16 @@ interface MenuItemCardProps {
   onRemove: () => void
 }
 
+function formatBs(usd: number, tasa: number): string {
+  const bs = usd * tasa
+  if (bs >= 1_000_000) return `Bs. ${(bs / 1_000_000).toFixed(2)}M`
+  if (bs >= 1_000) return `Bs. ${(bs / 1_000).toFixed(1)}k`
+  return `Bs. ${bs.toFixed(2)}`
+}
+
 export default function MenuItemCard({ item, quantity, onAdd, onRemove }: MenuItemCardProps) {
+  const { tasa } = useTasaBCV()
+
   return (
     <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex items-stretch transition-shadow hover:shadow-md">
       {/* Emoji panel */}
@@ -23,10 +35,17 @@ export default function MenuItemCard({ item, quantity, onAdd, onRemove }: MenuIt
           {item.descripcion && (
             <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{item.descripcion}</p>
           )}
-          <span className="inline-block mt-1.5 px-2 py-0.5 rounded-full text-xs font-bold"
-            style={{ background: '#E8F7F2', color: '#0F6B4F' }}>
-            ${item.precio.toFixed(2)}
-          </span>
+          <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
+            <span className="px-2 py-0.5 rounded-full text-xs font-bold"
+              style={{ background: '#E8F7F2', color: '#0F6B4F' }}>
+              ${item.precio.toFixed(2)}
+            </span>
+            {tasa && (
+              <span className="text-xs text-gray-400 font-medium">
+                {formatBs(item.precio, tasa)}
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Counter */}

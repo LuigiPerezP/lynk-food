@@ -12,7 +12,7 @@ import KanbanColumn from '@/components/kitchen/KanbanColumn'
 import OrderCard from '@/components/kitchen/OrderCard'
 import NotificationBanner from '@/components/kitchen/NotificationBanner'
 
-const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'la-terraza'
+const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'lynkfood'
 
 export default function CocinaPage() {
   const { orders, loading } = useOrders(RESTAURANTE_ID)

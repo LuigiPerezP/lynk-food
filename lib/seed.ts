@@ -2,7 +2,7 @@ import { collection, doc, setDoc, Timestamp } from 'firebase/firestore'
 import { db } from './firebase'
 import type { MenuItem } from './types'
 
-const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'la-terraza'
+const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'lynkfood'
 
 const menuItems: Omit<MenuItem, 'id'>[] = [
   // Entradas

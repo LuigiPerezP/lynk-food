@@ -8,7 +8,7 @@ const MenuManager = dynamic(() => import('@/components/admin/MenuManager'), { ss
 const TableManager = dynamic(() => import('@/components/admin/TableManager'), { ssr: false })
 const DailyReport = dynamic(() => import('@/components/admin/DailyReport'), { ssr: false })
 
-const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'la-terraza'
+const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'lynkfood'
 
 type Tab = 'menu' | 'mesas' | 'reportes'
 

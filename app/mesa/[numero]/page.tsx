@@ -16,8 +16,8 @@ import MenuSkeleton from '@/components/menu/MenuSkeleton'
 import ErrorMessage from '@/components/shared/ErrorMessage'
 import EmptyState from '@/components/shared/EmptyState'
 
-const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'la-terraza'
-const RESTAURANTE_NOMBRE = 'La Terraza'
+const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'lynkfood'
+const RESTAURANTE_NOMBRE = 'lynkfood'
 
 export default function MesaPage({ params }: { params: Promise<{ numero: string }> }) {
   const { numero } = use(params)

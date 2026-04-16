@@ -30,7 +30,7 @@ export default function KitchenHeader({ isBoard, onToggleView }: KitchenHeaderPr
         </div>
         <div>
           <p className="text-sm font-bold leading-none">Panel de Cocina</p>
-          <p className="text-xs mt-0.5" style={{ color: '#6EE7B7' }}>La Terraza</p>
+          <p className="text-xs mt-0.5" style={{ color: '#6EE7B7' }}>lynkfood</p>
         </div>
       </div>
 
