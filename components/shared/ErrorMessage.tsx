@@ -1,0 +1,22 @@
+interface ErrorMessageProps {
+  message: string
+  onRetry?: () => void
+}
+
+export default function ErrorMessage({ message, onRetry }: ErrorMessageProps) {
+  return (
+    <div className="flex flex-col items-center justify-center py-16 px-6 text-center">
+      <div className="text-4xl mb-4">📡</div>
+      <p className="text-sm text-gray-600 mb-4 max-w-xs">{message}</p>
+      {onRetry && (
+        <button
+          onClick={onRetry}
+          className="px-5 py-2.5 rounded-xl text-sm font-semibold text-white transition-opacity"
+          style={{ backgroundColor: '#1D9E75' }}
+        >
+          Reintentar
+        </button>
+      )}
+    </div>
+  )
+}
