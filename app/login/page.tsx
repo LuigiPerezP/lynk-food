@@ -12,6 +12,7 @@ function LoginForm() {
 
   const [role, setRole] = useState<'admin' | 'cocina'>(defaultRole)
   const [password, setPassword] = useState('')
+  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
@@ -84,22 +85,43 @@ function LoginForm() {
               <label className="block text-xs font-medium mb-2" style={{ color: 'rgba(255,255,255,0.6)' }}>
                 Contraseña — {role === 'admin' ? 'Administrador' : 'Cocina'}
               </label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                autoFocus
-                placeholder="••••••••"
-                className="w-full rounded-xl px-4 py-3 text-sm focus:outline-none transition-all placeholder-white/30"
-                style={{
-                  background: 'rgba(255,255,255,0.1)',
-                  border: '1.5px solid rgba(255,255,255,0.15)',
-                  color: 'white',
-                  caretColor: '#93C5FD',
-                }}
-                onFocus={(e) => (e.target.style.borderColor = 'rgba(147,197,253,0.6)')}
-                onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.15)')}
-              />
+              <div className="relative">
+                <input
+                  type={showPassword ? 'text' : 'password'}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  autoFocus
+                  placeholder="••••••••"
+                  className="w-full rounded-xl px-4 py-3 pr-11 text-sm focus:outline-none transition-all placeholder-white/30"
+                  style={{
+                    background: 'rgba(255,255,255,0.1)',
+                    border: '1.5px solid rgba(255,255,255,0.15)',
+                    color: 'white',
+                    caretColor: '#93C5FD',
+                  }}
+                  onFocus={(e) => (e.target.style.borderColor = 'rgba(147,197,253,0.6)')}
+                  onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.15)')}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-opacity"
+                  style={{ color: 'rgba(255,255,255,0.4)' }}
+                >
+                  {showPassword ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
 
             {error && (
