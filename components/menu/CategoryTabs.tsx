@@ -15,18 +15,22 @@ interface CategoryTabsProps {
 
 export default function CategoryTabs({ selected, onChange }: CategoryTabsProps) {
   return (
-    <div className="overflow-x-auto">
-      <div className="flex gap-2 px-4 py-3 min-w-max">
+    <div className="overflow-x-auto bg-white border-b border-gray-100">
+      <div className="flex gap-1 px-4 py-3 min-w-max">
         {CATEGORIAS.map((cat) => {
           const active = selected === cat.value
           return (
             <button
               key={cat.value}
               onClick={() => onChange(cat.value)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium transition-colors whitespace-nowrap"
-              style={{
-                backgroundColor: active ? '#1D9E75' : '#F3F4F6',
-                color: active ? '#fff' : '#374151',
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all active:scale-95 whitespace-nowrap"
+              style={active ? {
+                background: 'linear-gradient(135deg, #0F6B4F, #1D9E75)',
+                color: '#fff',
+                boxShadow: '0 2px 8px rgba(29,158,117,0.35)',
+              } : {
+                background: '#F3F4F6',
+                color: '#6B7280',
               }}
             >
               <span>{cat.emoji}</span>

@@ -28,27 +28,37 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-gray-900 text-white px-5 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <span className="text-lg">⚙️</span>
+      {/* Header */}
+      <div className="text-white px-5 py-4 flex items-center justify-between shadow-lg"
+        style={{ background: 'linear-gradient(135deg, #0a2e1f 0%, #0F6B4F 60%, #1D9E75 100%)' }}>
+        <div className="flex items-center gap-3">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center"
+            style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
+            <span className="text-base">⚙️</span>
+          </div>
           <div>
             <p className="text-sm font-bold leading-none">Administración</p>
-            <p className="text-xs text-gray-400 mt-0.5">lynk.food</p>
+            <p className="text-xs mt-0.5" style={{ color: '#6EE7B7' }}>lynk.food</p>
           </div>
         </div>
-        <LogoutButton className="text-xs text-gray-400 hover:text-white transition-colors" />
+        <LogoutButton className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+          style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }} />
       </div>
 
-      <div className="flex border-b border-gray-200 bg-white px-4">
+      {/* Tabs */}
+      <div className="flex bg-white border-b border-gray-100 px-4 shadow-sm">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex items-center gap-1.5 px-5 py-3.5 text-sm font-medium border-b-2 transition-colors ${
-              tab === t.id
-                ? 'border-green-500 text-green-700'
-                : 'border-transparent text-gray-500 hover:text-gray-700'
-            }`}
+            className="flex items-center gap-1.5 px-5 py-3.5 text-sm font-semibold border-b-2 transition-colors"
+            style={tab === t.id ? {
+              borderColor: '#1D9E75',
+              color: '#0F6B4F',
+            } : {
+              borderColor: 'transparent',
+              color: '#9CA3AF',
+            }}
           >
             <span>{t.emoji}</span>
             <span>{t.label}</span>
