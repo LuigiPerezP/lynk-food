@@ -1,4 +1,11 @@
+'use client'
+
 import type { OrderItem } from '@/lib/types'
+import { useTasaBCV } from '@/lib/hooks/useTasaBCV'
+
+function formatBs(usd: number, tasa: number): string {
+  return `Bs. ${(usd * tasa).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+}
 
 interface CartSummaryProps {
   items: OrderItem[]
@@ -9,6 +16,7 @@ interface CartSummaryProps {
 }
 
 export default function CartSummary({ items, total, notas, loading, onSubmit }: CartSummaryProps) {
+  const { tasa } = useTasaBCV()
   if (items.length === 0) return null
 
   return (
@@ -34,9 +42,10 @@ export default function CartSummary({ items, total, notas, loading, onSubmit }: 
         {/* Total row */}
         <div className="flex items-center justify-between py-2.5 border-t border-gray-100 mb-3">
           <span className="font-bold text-gray-900">Total</span>
-          <span className="text-xl font-extrabold" style={{ color: '#0D3BB5' }}>
-            ${total.toFixed(2)}
-          </span>
+          <div className="text-right">
+            <p className="text-xl font-extrabold" style={{ color: '#0D3BB5' }}>${total.toFixed(2)}</p>
+            {tasa && <p className="text-xs text-gray-400">{formatBs(total, tasa)}</p>}
+          </div>
         </div>
 
         <button
