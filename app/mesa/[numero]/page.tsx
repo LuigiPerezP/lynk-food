@@ -32,9 +32,18 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
   const [showCart, setShowCart] = useState(false)
   const [confirmedOrder, setConfirmedOrder] = useState<{ id: string; hora: string } | null>(null)
 
+  const ORDEN_CATEGORIAS: Categoria[] = ['entradas', 'platos', 'postres', 'bebidas']
+  const LABEL_CATEGORIA: Record<Categoria, string> = {
+    entradas: 'Entradas', platos: 'Platos', postres: 'Postres', bebidas: 'Bebidas',
+  }
+
   const filtered = categoria === 'todos'
     ? menu
     : menu.filter((i) => i.categoria === categoria)
+
+  const grupos = ORDEN_CATEGORIAS
+    .map((cat) => ({ cat, items: filtered.filter((i) => i.categoria === cat) }))
+    .filter((g) => g.items.length > 0)
 
   async function handleSubmit() {
     if (items.length === 0) return
@@ -88,14 +97,24 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
               description="Prueba con otra categoría del menú."
             />
           ) : (
-            filtered.map((item) => (
-              <MenuItemCard
-                key={item.id}
-                item={item}
-                quantity={quantityOf(item.id)}
-                onAdd={() => add(item)}
-                onRemove={() => remove(item.id)}
-              />
+            grupos.map(({ cat, items }) => (
+              <div key={cat}>
+                <p className="text-xs font-bold uppercase tracking-widest mb-2 mt-4 first:mt-0"
+                  style={{ color: '#1A6BFF' }}>
+                  {LABEL_CATEGORIA[cat]}
+                </p>
+                <div className="space-y-3">
+                  {items.map((item) => (
+                    <MenuItemCard
+                      key={item.id}
+                      item={item}
+                      quantity={quantityOf(item.id)}
+                      onAdd={() => add(item)}
+                      onRemove={() => remove(item.id)}
+                    />
+                  ))}
+                </div>
+              </div>
             ))
           )}
         </div>
