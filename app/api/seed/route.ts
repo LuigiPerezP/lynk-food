@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { seedMenu } from '@/lib/seed'
+import { seedMenu, seedAuth } from '@/lib/seed'
 
 // Solo disponible en desarrollo — cargar el menú de ejemplo en Firestore
 export async function POST() {
@@ -8,8 +8,8 @@ export async function POST() {
   }
 
   try {
-    await seedMenu()
-    return NextResponse.json({ ok: true, mensaje: 'Menú cargado exitosamente' })
+    await Promise.all([seedMenu(), seedAuth()])
+    return NextResponse.json({ ok: true, mensaje: 'Menú y auth cargados exitosamente' })
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Error desconocido'
     return NextResponse.json({ error: message }, { status: 500 })

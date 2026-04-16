@@ -1,3 +1,5 @@
+import { getAuthConfig } from './configAuth'
+
 export type Role = 'admin' | 'cocina'
 
 export const COOKIE_NAME = 'lynk_auth'
@@ -24,12 +26,12 @@ export async function verifyToken(token: string | undefined, role: Role): Promis
   const [tokenRole] = token.split('.')
   if (tokenRole !== role) return false
 
-  const password =
-    role === 'admin'
-      ? process.env.ADMIN_PASSWORD
-      : process.env.KITCHEN_PASSWORD
+  const config = await getAuthConfig()
+  if (!config) return false
 
+  const password = role === 'admin' ? config.admin : config.cocina
   if (!password) return false
+
   const expected = await createToken(role, password)
   return expected === token
 }

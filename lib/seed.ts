@@ -1,4 +1,4 @@
-import { collection, doc, setDoc, Timestamp } from 'firebase/firestore'
+import { collection, doc, setDoc, getDoc, Timestamp } from 'firebase/firestore'
 import { db } from './firebase'
 import type { MenuItem } from './types'
 
@@ -123,4 +123,17 @@ export async function seedMenu() {
 
   await Promise.all(promises)
   console.log(`✅ ${menuItems.length} platos cargados en restaurante "${RESTAURANTE_ID}"`)
+}
+
+export async function seedAuth() {
+  const authRef = doc(db, 'config', 'auth')
+  const snap = await getDoc(authRef)
+
+  if (snap.exists()) {
+    console.log('ℹ️ config/auth ya existe, no se sobreescribe')
+    return
+  }
+
+  await setDoc(authRef, { admin: 'Admin2026', cocina: 'Cocina2026' })
+  console.log('✅ Contraseñas iniciales guardadas en config/auth')
 }

@@ -1,14 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { getAuthConfig } from '@/lib/configAuth'
 
 export async function POST(req: NextRequest) {
   const { password } = await req.json()
-  const correct = process.env.ADMIN_PASSWORD
 
-  if (!correct) {
-    return NextResponse.json({ error: 'ADMIN_PASSWORD no configurado' }, { status: 500 })
+  const config = await getAuthConfig()
+  if (!config) {
+    return NextResponse.json({ error: 'Sistema no configurado' }, { status: 503 })
   }
 
-  if (password !== correct) {
+  if (password !== config.admin) {
     return NextResponse.json({ error: 'Contraseña incorrecta' }, { status: 401 })
   }
 
