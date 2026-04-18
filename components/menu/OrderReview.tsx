@@ -7,6 +7,7 @@ interface OrderReviewProps {
   total: number
   notas: string
   onNotasChange: (v: string) => void
+  onItemNota: (menuItemId: string, nota: string) => void
   loading: boolean
   onConfirm: () => void
   onBack: () => void
@@ -16,7 +17,7 @@ function formatBs(usd: number, tasa: number) {
   return `Bs. ${(usd * tasa).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
-export default function OrderReview({ mesa, items, total, notas, onNotasChange, loading, onConfirm, onBack }: OrderReviewProps) {
+export default function OrderReview({ mesa, items, total, notas, onNotasChange, onItemNota, loading, onConfirm, onBack }: OrderReviewProps) {
   const { tasa } = useTasaBCV()
 
   return (
@@ -53,9 +54,13 @@ export default function OrderReview({ mesa, items, total, notas, onNotasChange, 
                   ${(item.precio * item.cantidad).toFixed(2)}
                 </span>
               </div>
-              {item.nota && (
-                <p className="text-xs text-blue-500 italic pl-5 mt-0.5">↳ {item.nota}</p>
-              )}
+              <input
+                type="text"
+                value={item.nota ?? ''}
+                onChange={(e) => onItemNota(item.menuItemId, e.target.value)}
+                placeholder="Indicación para este plato…"
+                className="w-full mt-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300 placeholder-gray-400"
+              />
             </div>
           ))}
 
