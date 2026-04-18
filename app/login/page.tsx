@@ -8,9 +8,10 @@ function LoginForm() {
   const router = useRouter()
   const params = useSearchParams()
   const defaultRole = (params.get('role') ?? 'cocina') as 'admin' | 'cocina'
-  const from = params.get('from') ?? (defaultRole === 'admin' ? '/admin' : '/cocina')
+  const fromParam = params.get('from')
 
   const [role, setRole] = useState<'admin' | 'cocina'>(defaultRole)
+  const from = fromParam ?? (role === 'admin' ? '/admin' : '/cocina')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
