@@ -31,6 +31,7 @@ export function useMenu(restauranteId: string, soloDisponibles = true) {
         categoria: row.categoria,
         disponible: row.disponible,
         emoji: row.emoji ?? '🍽️',
+        imagen: row.imagen ?? undefined,
       })))
     } catch (err) {
       setError(`No se pudo cargar el menú: ${err instanceof Error ? err.message : err}`)
