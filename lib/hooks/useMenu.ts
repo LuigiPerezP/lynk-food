@@ -1,8 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { collection, getDocs, query, where } from 'firebase/firestore'
-import { db } from '../firebase'
+import { supabase } from '../supabase'
 import type { MenuItem } from '../types'
 
 export function useMenu(restauranteId: string, soloDisponibles = true) {
@@ -14,25 +13,33 @@ export function useMenu(restauranteId: string, soloDisponibles = true) {
     setLoading(true)
     setError(null)
     try {
-      const ref = collection(db, 'restaurante', restauranteId, 'menu')
-      const q = soloDisponibles
-        ? query(ref, where('disponible', '==', true))
-        : query(ref)
-      const snapshot = await getDocs(q)
-      const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as MenuItem[]
-      setMenu(items)
+      let query = supabase
+        .from('menu_items')
+        .select('*')
+        .eq('restaurante_id', restauranteId)
+
+      if (soloDisponibles) query = query.eq('disponible', true)
+
+      const { data, error: err } = await query
+      if (err) throw err
+
+      setMenu((data ?? []).map((row) => ({
+        id: row.id,
+        nombre: row.nombre,
+        descripcion: row.descripcion ?? '',
+        precio: Number(row.precio),
+        categoria: row.categoria,
+        disponible: row.disponible,
+        emoji: row.emoji ?? '🍽️',
+      })))
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Error desconocido'
-      setError(`No se pudo cargar el menú: ${msg}`)
-      console.error('[useMenu] Error:', err)
+      setError(`No se pudo cargar el menú: ${err instanceof Error ? err.message : err}`)
     } finally {
       setLoading(false)
     }
   }, [restauranteId, soloDisponibles])
 
-  useEffect(() => {
-    fetchMenu()
-  }, [fetchMenu])
+  useEffect(() => { fetchMenu() }, [fetchMenu])
 
   return { menu, loading, error, retry: fetchMenu }
 }

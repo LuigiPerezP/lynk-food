@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore'
-import { db } from '../firebase'
-import type { Order, OrderItem } from '../types'
+import { supabase } from '../supabase'
+import type { OrderItem } from '../types'
 
 interface SubmitParams {
   restauranteId: string
@@ -20,16 +19,19 @@ export function useSubmitOrder() {
     setLoading(true)
     setError(null)
     try {
-      const ref = collection(db, 'restaurante', params.restauranteId, 'pedidos')
-      const docRef = await addDoc(ref, {
-        mesa: params.mesa,
-        items: params.items,
-        notas: params.notas,
-        estado: 'nuevo',
-        creadoEn: serverTimestamp(),
-        actualizadoEn: serverTimestamp(),
-      } satisfies Omit<Order, 'id' | 'creadoEn' | 'actualizadoEn'> & { creadoEn: unknown; actualizadoEn: unknown })
-      return docRef.id
+      const { data, error: err } = await supabase
+        .from('pedidos')
+        .insert({
+          restaurante_id: params.restauranteId,
+          mesa: params.mesa,
+          items: params.items,
+          notas: params.notas,
+          estado: 'nuevo',
+        })
+        .select('id')
+        .single()
+      if (err) throw err
+      return data.id
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al enviar el pedido')
       return null

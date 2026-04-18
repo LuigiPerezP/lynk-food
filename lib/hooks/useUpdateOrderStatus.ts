@@ -1,18 +1,19 @@
 'use client'
 
 import { useState } from 'react'
-import { doc, updateDoc, serverTimestamp } from 'firebase/firestore'
-import { db } from '../firebase'
+import { supabase } from '../supabase'
 import type { OrderStatus } from '../types'
 
-export function useUpdateOrderStatus(restauranteId: string) {
+export function useUpdateOrderStatus(_restauranteId: string) {
   const [loading, setLoading] = useState<string | null>(null)
 
   async function updateStatus(orderId: string, estado: OrderStatus) {
     setLoading(orderId)
     try {
-      const ref = doc(db, 'restaurante', restauranteId, 'pedidos', orderId)
-      await updateDoc(ref, { estado, actualizadoEn: serverTimestamp() })
+      await supabase
+        .from('pedidos')
+        .update({ estado, updated_at: new Date().toISOString() })
+        .eq('id', orderId)
     } finally {
       setLoading(null)
     }

@@ -1,14 +1,19 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { collection, onSnapshot, query, where, Timestamp } from 'firebase/firestore'
-import { db } from '../firebase'
+import { supabase } from '../supabase'
 import type { Order } from '../types'
 
-function startOfToday(): Timestamp {
-  const d = new Date()
-  d.setHours(0, 0, 0, 0)
-  return Timestamp.fromDate(d)
+function mapRow(row: Record<string, unknown>): Order {
+  return {
+    id: row.id as string,
+    mesa: row.mesa as number,
+    items: row.items as Order['items'],
+    notas: (row.notas as string) ?? '',
+    estado: row.estado as Order['estado'],
+    creadoEn: new Date(row.created_at as string),
+    actualizadoEn: new Date(row.updated_at as string),
+  }
 }
 
 export function useDailyOrders(restauranteId: string) {
@@ -16,24 +21,18 @@ export function useDailyOrders(restauranteId: string) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const ref = collection(db, 'restaurante', restauranteId, 'pedidos')
-    const q = query(ref, where('creadoEn', '>=', startOfToday()))
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
 
-    const unsub = onSnapshot(q, (snap) => {
-      const data = snap.docs.map((d) => {
-        const raw = d.data()
-        return {
-          id: d.id,
-          ...raw,
-          creadoEn: raw.creadoEn?.toDate(),
-          actualizadoEn: raw.actualizadoEn?.toDate(),
-        } as Order
+    supabase
+      .from('pedidos')
+      .select('*')
+      .eq('restaurante_id', restauranteId)
+      .gte('created_at', today.toISOString())
+      .then(({ data }) => {
+        setOrders((data ?? []).map(mapRow))
+        setLoading(false)
       })
-      setOrders(data)
-      setLoading(false)
-    })
-
-    return () => unsub()
   }, [restauranteId])
 
   return { orders, loading }

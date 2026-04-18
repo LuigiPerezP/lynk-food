@@ -1,10 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import {
-  collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp,
-} from 'firebase/firestore'
-import { db } from '../firebase'
+import { supabase } from '../supabase'
 import type { MenuItem } from '../types'
 
 export function useAdminMenu(restauranteId: string) {
@@ -15,12 +12,19 @@ export function useAdminMenu(restauranteId: string) {
     setSaving(true)
     setSaveError(null)
     try {
-      const ref = collection(db, 'restaurante', restauranteId, 'menu')
-      await addDoc(ref, { ...item, creadoEn: serverTimestamp() })
+      const { error } = await supabase.from('menu_items').insert({
+        restaurante_id: restauranteId,
+        nombre: item.nombre,
+        descripcion: item.descripcion,
+        precio: item.precio,
+        categoria: item.categoria,
+        disponible: item.disponible,
+        emoji: item.emoji,
+      })
+      if (error) throw error
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Error desconocido'
+      const msg = err instanceof Error ? err.message : String(err)
       setSaveError(`Error al guardar: ${msg}`)
-      console.error('[useAdminMenu] addItem error:', err)
       throw err
     } finally {
       setSaving(false)
@@ -31,12 +35,11 @@ export function useAdminMenu(restauranteId: string) {
     setSaving(true)
     setSaveError(null)
     try {
-      const ref = doc(db, 'restaurante', restauranteId, 'menu', id)
-      await updateDoc(ref, { ...updates, actualizadoEn: serverTimestamp() })
+      const { error } = await supabase.from('menu_items').update(updates).eq('id', id)
+      if (error) throw error
     } catch (err) {
-      const msg = err instanceof Error ? err.message : 'Error desconocido'
+      const msg = err instanceof Error ? err.message : String(err)
       setSaveError(`Error al actualizar: ${msg}`)
-      console.error('[useAdminMenu] updateItem error:', err)
       throw err
     } finally {
       setSaving(false)
@@ -44,13 +47,11 @@ export function useAdminMenu(restauranteId: string) {
   }
 
   async function toggleDisponible(id: string, disponible: boolean) {
-    const ref = doc(db, 'restaurante', restauranteId, 'menu', id)
-    await updateDoc(ref, { disponible, actualizadoEn: serverTimestamp() })
+    await supabase.from('menu_items').update({ disponible }).eq('id', id)
   }
 
   async function deleteItem(id: string) {
-    const ref = doc(db, 'restaurante', restauranteId, 'menu', id)
-    await deleteDoc(ref)
+    await supabase.from('menu_items').delete().eq('id', id)
   }
 
   return { addItem, updateItem, toggleDisponible, deleteItem, saving, saveError }
