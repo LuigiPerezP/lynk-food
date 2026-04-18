@@ -27,7 +27,7 @@ export default function CartSummary({ items, total, notas, loading, onSubmit, on
       style={{ background: 'white', borderTop: '1px solid #e5e7eb' }}>
       <div className="max-w-lg mx-auto px-4 pt-3 pb-5">
         {/* Item list */}
-        <div className="mb-3 max-h-32 overflow-y-auto space-y-1.5 pr-1">
+        <div className="mb-3 max-h-52 overflow-y-auto space-y-1.5 pr-1">
           {items.map((item) => (
             <div key={item.menuItemId}>
               <div className="flex justify-between items-center gap-2">
@@ -52,6 +52,13 @@ export default function CartSummary({ items, total, notas, loading, onSubmit, on
                   </span>
                 </div>
               </div>
+              <input
+                type="text"
+                value={item.nota ?? ''}
+                onChange={(e) => onNota(item.menuItemId, e.target.value)}
+                placeholder="Alguna indicación… (ej: sin cebolla)"
+                className="w-full mt-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300 placeholder-gray-400"
+              />
             </div>
           ))}
         </div>
