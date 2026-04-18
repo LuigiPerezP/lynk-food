@@ -5,13 +5,11 @@ import { useMenu } from '@/lib/hooks/useMenu'
 import { useCart } from '@/lib/hooks/useCart'
 import { useSubmitOrder } from '@/lib/hooks/useSubmitOrder'
 import { useCategorias } from '@/lib/hooks/useCategorias'
-import type { Categoria } from '@/lib/types'
 
 import MenuHeader from '@/components/menu/MenuHeader'
 import CategoryTabs from '@/components/menu/CategoryTabs'
 import MenuItemCard from '@/components/menu/MenuItemCard'
 import CartSummary from '@/components/menu/CartSummary'
-import OrderNotes from '@/components/menu/OrderNotes'
 import OrderReview from '@/components/menu/OrderReview'
 import OrderConfirmation from '@/components/menu/OrderConfirmation'
 import MenuSkeleton from '@/components/menu/MenuSkeleton'
@@ -26,25 +24,52 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
   const mesa = parseInt(numero, 10)
 
   const { menu, loading: menuLoading, error: menuError, retry: retryMenu } = useMenu(RESTAURANTE_ID)
-  const { categorias } = useCategorias(RESTAURANTE_ID)
+  const { secciones, getSubcats, leafCats } = useCategorias(RESTAURANTE_ID)
   const { items, total, totalItems, add, remove, clear, quantityOf, setNota } = useCart(mesa)
   const { submit, loading: submitting, error } = useSubmitOrder()
 
-  const [categoria, setCategoria] = useState<Categoria | 'todos'>('todos')
+  const [selectedSection, setSelectedSection] = useState<string | 'todos'>('todos')
+  const [selectedSubcat, setSelectedSubcat] = useState<string | null>(null)
   const [notas, setNotas] = useState('')
   const [showCart, setShowCart] = useState(false)
   const [showReview, setShowReview] = useState(false)
   const [confirmedOrder, setConfirmedOrder] = useState<{ id: string; hora: string } | null>(null)
 
-  const catNames = categorias.map((c) => c.nombre)
+  // Get all leaf cat names belonging to a section (for filtering)
+  function getCatsForSection(seccionNombre: string): string[] {
+    const seccion = secciones.find(s => s.nombre === seccionNombre)
+    if (!seccion) return [seccionNombre]
+    const subcats = getSubcats(seccion.id)
+    return subcats.length > 0
+      ? [seccionNombre, ...subcats.map(s => s.nombre)]
+      : [seccionNombre]
+  }
 
-  const filtered = categoria === 'todos'
-    ? menu
-    : menu.filter((i) => i.categoria === categoria)
+  const filtered = (() => {
+    if (selectedSection === 'todos') return menu
+    if (selectedSubcat) return menu.filter(i => i.categoria === selectedSubcat)
+    return menu.filter(i => getCatsForSection(selectedSection).includes(i.categoria))
+  })()
 
-  const grupos = catNames
-    .map((cat) => ({ cat, items: filtered.filter((i) => i.categoria === cat) }))
-    .filter((g) => g.items.length > 0)
+  // Groups for display
+  const grupos = (() => {
+    if (selectedSubcat) {
+      return [{ header: selectedSubcat, items: filtered }]
+    }
+    if (selectedSection !== 'todos') {
+      const seccion = secciones.find(s => s.nombre === selectedSection)
+      if (!seccion) return [{ header: selectedSection, items: filtered }]
+      const subcats = getSubcats(seccion.id)
+      if (subcats.length === 0) return [{ header: selectedSection, items: filtered }]
+      return subcats
+        .map(sub => ({ header: sub.nombre, items: filtered.filter(i => i.categoria === sub.nombre) }))
+        .filter(g => g.items.length > 0)
+    }
+    // todos: group by leaf category
+    return leafCats
+      .map(c => ({ header: c.nombre, items: menu.filter(i => i.categoria === c.nombre) }))
+      .filter(g => g.items.length > 0)
+  })()
 
   async function handleSubmit() {
     if (items.length === 0) return
@@ -93,7 +118,14 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
       <MenuHeader restaurante={RESTAURANTE_NOMBRE} mesa={mesa} />
 
       <div className="sticky top-[61px] z-10 bg-gray-50">
-        <CategoryTabs selected={categoria} onChange={setCategoria} categorias={catNames} />
+        <CategoryTabs
+          secciones={secciones}
+          getSubcats={getSubcats}
+          selectedSection={selectedSection}
+          selectedSubcat={selectedSubcat}
+          onSectionChange={setSelectedSection}
+          onSubcatChange={setSelectedSubcat}
+        />
       </div>
 
       {menuLoading ? (
@@ -103,23 +135,17 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
       ) : (
         <div className="max-w-lg mx-auto px-4 pt-3 pb-52 space-y-3">
           {menu.length === 0 ? (
-            <EmptyState
-              emoji="🍽️"
-              title="El menú está vacío"
-              description="El restaurante aún no ha cargado platos. Vuelve en unos minutos."
-            />
+            <EmptyState emoji="🍽️" title="El menú está vacío"
+              description="El restaurante aún no ha cargado platos. Vuelve en unos minutos." />
           ) : filtered.length === 0 ? (
-            <EmptyState
-              emoji="🔍"
-              title="Sin platos en esta categoría"
-              description="Prueba con otra categoría del menú."
-            />
+            <EmptyState emoji="🔍" title="Sin platos en esta categoría"
+              description="Prueba con otra categoría del menú." />
           ) : (
-            grupos.map(({ cat, items: groupItems }) => (
-              <div key={cat}>
+            grupos.map(({ header, items: groupItems }) => (
+              <div key={header}>
                 <p className="text-xs font-bold uppercase tracking-widest mb-2 mt-4 first:mt-0"
                   style={{ color: '#1A6BFF' }}>
-                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                  {header.charAt(0).toUpperCase() + header.slice(1)}
                 </p>
                 <div className="space-y-3">
                   {groupItems.map((item) => (
@@ -140,24 +166,12 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
         </div>
       )}
 
-      {/* Carrito expandido */}
-      {showCart && items.length > 0 && (
-        <div className="max-w-lg mx-auto px-4 pb-2">
-          <OrderNotes value={notas} onChange={setNotas} />
-        </div>
-      )}
-
-      {/* Botón flotante cuando el carrito está colapsado */}
       {!showCart && totalItems > 0 && (
-        <button
-          onClick={() => setShowCart(true)}
+        <button onClick={() => setShowCart(true)}
           className="fixed bottom-6 right-4 z-30 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-lg text-white text-sm font-semibold"
-          style={{ backgroundColor: '#1A6BFF' }}
-        >
-          <span
-            className="w-5 h-5 bg-white rounded-full flex items-center justify-center text-xs font-bold"
-            style={{ color: '#1A6BFF' }}
-          >
+          style={{ backgroundColor: '#1A6BFF' }}>
+          <span className="w-5 h-5 bg-white rounded-full flex items-center justify-center text-xs font-bold"
+            style={{ color: '#1A6BFF' }}>
             {totalItems}
           </span>
           <span>Ver pedido</span>

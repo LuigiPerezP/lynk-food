@@ -1,42 +1,78 @@
-import type { Categoria } from '@/lib/types'
+import type { CategoriaItem } from '@/lib/hooks/useCategorias'
 
 interface CategoryTabsProps {
-  selected: Categoria | 'todos'
-  onChange: (cat: Categoria | 'todos') => void
-  categorias: string[]
+  secciones: CategoriaItem[]
+  getSubcats: (id: string) => CategoriaItem[]
+  selectedSection: string | 'todos'
+  selectedSubcat: string | null
+  onSectionChange: (s: string | 'todos') => void
+  onSubcatChange: (s: string | null) => void
 }
 
-export default function CategoryTabs({ selected, onChange, categorias }: CategoryTabsProps) {
-  const tabs = [
-    { value: 'todos' as const, label: 'Todos', emoji: '🍴' },
-    ...categorias.map((c) => ({ value: c, label: c.charAt(0).toUpperCase() + c.slice(1), emoji: '' })),
-  ]
+const btn = (active: boolean) => ({
+  background: active ? 'linear-gradient(135deg, #0D3BB5, #1A6BFF)' : '#F3F4F6',
+  color: active ? '#fff' : '#6B7280',
+  boxShadow: active ? '0 2px 8px rgba(26,107,255,0.35)' : 'none',
+})
+
+export default function CategoryTabs({ secciones, getSubcats, selectedSection, selectedSubcat, onSectionChange, onSubcatChange }: CategoryTabsProps) {
+  const currentSeccion = secciones.find(s => s.nombre === selectedSection)
+  const subcats = currentSeccion ? getSubcats(currentSeccion.id) : []
+
+  function handleSectionClick(nombre: string | 'todos') {
+    onSectionChange(nombre)
+    onSubcatChange(null)
+  }
 
   return (
-    <div className="overflow-x-auto bg-white border-b border-gray-100">
-      <div className="flex gap-1 px-4 py-3 min-w-max">
-        {tabs.map((cat) => {
-          const active = selected === cat.value
-          return (
+    <div className="bg-white border-b border-gray-100">
+      {/* Primary tabs — sections */}
+      <div className="overflow-x-auto">
+        <div className="flex gap-1 px-4 py-2.5 min-w-max">
+          <button
+            onClick={() => handleSectionClick('todos')}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all active:scale-95 whitespace-nowrap"
+            style={btn(selectedSection === 'todos')}
+          >
+            🍴 Todos
+          </button>
+          {secciones.map((s) => (
             <button
-              key={cat.value}
-              onClick={() => onChange(cat.value)}
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all active:scale-95 whitespace-nowrap"
-              style={active ? {
-                background: 'linear-gradient(135deg, #0D3BB5, #1A6BFF)',
-                color: '#fff',
-                boxShadow: '0 2px 8px rgba(26,107,255,0.35)',
-              } : {
-                background: '#F3F4F6',
-                color: '#6B7280',
-              }}
+              key={s.id}
+              onClick={() => handleSectionClick(s.nombre)}
+              className="flex items-center px-3.5 py-2 rounded-xl text-xs font-semibold transition-all active:scale-95 whitespace-nowrap capitalize"
+              style={btn(selectedSection === s.nombre)}
             >
-              {cat.emoji && <span>{cat.emoji}</span>}
-              <span>{cat.label}</span>
+              {s.nombre}
             </button>
-          )
-        })}
+          ))}
+        </div>
       </div>
+
+      {/* Secondary chips — subcategories */}
+      {subcats.length > 0 && (
+        <div className="overflow-x-auto border-t border-gray-50">
+          <div className="flex gap-1.5 px-4 py-2 min-w-max">
+            <button
+              onClick={() => onSubcatChange(null)}
+              className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap"
+              style={btn(!selectedSubcat)}
+            >
+              Todo
+            </button>
+            {subcats.map((sub) => (
+              <button
+                key={sub.id}
+                onClick={() => onSubcatChange(sub.nombre)}
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap capitalize"
+                style={btn(selectedSubcat === sub.nombre)}
+              >
+                {sub.nombre}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

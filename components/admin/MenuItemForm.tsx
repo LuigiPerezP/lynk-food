@@ -3,6 +3,7 @@
 import { useRef, useState } from 'react'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
+import type { CategoriaItem } from '@/lib/hooks/useCategorias'
 import type { MenuItem } from '@/lib/types'
 
 interface MenuItemFormProps {
@@ -10,22 +11,38 @@ interface MenuItemFormProps {
   onSave: (data: Omit<MenuItem, 'id'>) => Promise<void>
   onCancel: () => void
   saving: boolean
-  categorias: string[]
+  secciones: CategoriaItem[]
+  getSubcats: (id: string) => CategoriaItem[]
 }
 
 const EMPTY: Omit<MenuItem, 'id'> = {
   nombre: '', descripcion: '', precio: 0,
-  categoria: 'platos', disponible: true, emoji: '🍽️',
+  categoria: '', disponible: true, emoji: '🍽️',
 }
 
-export default function MenuItemForm({ initial, onSave, onCancel, saving, categorias }: MenuItemFormProps) {
+export default function MenuItemForm({ initial, onSave, onCancel, saving, secciones, getSubcats }: MenuItemFormProps) {
   const [form, setForm] = useState<Omit<MenuItem, 'id'>>({ ...EMPTY, ...initial })
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
+  // Find which section owns the current categoria
+  const currentSection = secciones.find(s =>
+    s.nombre === form.categoria || getSubcats(s.id).some(sub => sub.nombre === form.categoria)
+  )
+  const [selectedSeccion, setSelectedSeccion] = useState<string>(currentSection?.id ?? secciones[0]?.id ?? '')
+
   function set<K extends keyof typeof form>(key: K, value: typeof form[K]) {
     setForm((f) => ({ ...f, [key]: value }))
+  }
+
+  function handleSeccionChange(seccionId: string) {
+    setSelectedSeccion(seccionId)
+    const seccion = secciones.find(s => s.id === seccionId)
+    if (!seccion) return
+    const subcats = getSubcats(seccionId)
+    // Default categoria to first subcat or the section itself
+    set('categoria', subcats[0]?.nombre ?? seccion.nombre)
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -47,11 +64,13 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, catego
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.nombre.trim() || form.precio <= 0) return
+    if (!form.nombre.trim() || form.precio <= 0 || !form.categoria) return
     await onSave(form)
   }
 
   const field = 'w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400'
+  const subcats = getSubcats(selectedSeccion)
+  const seccionActual = secciones.find(s => s.id === selectedSeccion)
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3 p-4 bg-gray-50 rounded-xl border border-gray-200">
@@ -74,13 +93,13 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, catego
           className={`${field} resize-none`} rows={2} placeholder="Describe el plato…" />
       </div>
 
-      {/* Imagen */}
       {uploadError && (
         <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
           Error al subir: {uploadError}
         </div>
       )}
 
+      {/* Imagen */}
       <div>
         <label className="text-xs text-gray-500 font-medium">Imagen del plato</label>
         <div className="mt-1 flex items-center gap-3">
@@ -94,8 +113,7 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, catego
             </div>
           )}
           <div className="flex flex-col gap-1">
-            <button type="button" onClick={() => fileRef.current?.click()}
-              disabled={uploading}
+            <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
               className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors">
               {uploading ? 'Subiendo…' : form.imagen ? 'Cambiar imagen' : 'Subir imagen'}
             </button>
@@ -118,15 +136,30 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, catego
             className={field} required />
         </div>
         <div className="flex-1">
-          <label className="text-xs text-gray-500 font-medium">Categoría</label>
-          <select value={form.categoria} onChange={(e) => set('categoria', e.target.value)}
-            className={field}>
-            {categorias.map((c) => (
-              <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
+          <label className="text-xs text-gray-500 font-medium">Sección</label>
+          <select value={selectedSeccion} onChange={(e) => handleSeccionChange(e.target.value)} className={field}>
+            {secciones.map((s) => (
+              <option key={s.id} value={s.id}>{s.nombre.charAt(0).toUpperCase() + s.nombre.slice(1)}</option>
             ))}
           </select>
         </div>
+        {subcats.length > 0 && (
+          <div className="flex-1">
+            <label className="text-xs text-gray-500 font-medium">Subcategoría</label>
+            <select value={form.categoria} onChange={(e) => set('categoria', e.target.value)} className={field}>
+              {subcats.map((sub) => (
+                <option key={sub.id} value={sub.nombre}>{sub.nombre.charAt(0).toUpperCase() + sub.nombre.slice(1)}</option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
+
+      {subcats.length === 0 && seccionActual && (
+        <p className="text-xs text-gray-400">
+          Este plato irá directo a la sección <strong>{seccionActual.nombre}</strong>
+        </p>
+      )}
 
       <div className="flex justify-end gap-2 pt-1">
         <button type="button" onClick={onCancel}

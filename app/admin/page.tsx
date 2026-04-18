@@ -25,7 +25,7 @@ const TABS: { id: Tab; label: string; emoji: string }[] = [
 export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('menu')
   const [baseUrl, setBaseUrl] = useState('')
-  const { categorias, addCategoria, deleteCategoria } = useCategorias(RESTAURANTE_ID)
+  const { secciones, getSubcats, addCategoria, deleteCategoria } = useCategorias(RESTAURANTE_ID)
 
   useEffect(() => {
     setBaseUrl(window.location.origin)
@@ -74,7 +74,7 @@ export default function AdminPage() {
       <div className="max-w-3xl mx-auto px-4 py-6">
         {tab === 'menu' && <MenuManager restauranteId={RESTAURANTE_ID} />}
         {tab === 'categorias' && (
-          <CategoryManager categorias={categorias} onAdd={addCategoria} onDelete={deleteCategoria} />
+          <CategoryManager secciones={secciones} getSubcats={getSubcats} onAdd={addCategoria} onDelete={deleteCategoria} />
         )}
         {tab === 'mesas' && <TableManager baseUrl={baseUrl} />}
         {tab === 'reportes' && <DailyReport restauranteId={RESTAURANTE_ID} />}
