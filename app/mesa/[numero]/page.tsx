@@ -68,6 +68,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
         items={items}
         total={total}
         notas={notas}
+        onNotasChange={setNotas}
         loading={submitting}
         onConfirm={handleSubmit}
         onBack={() => setShowReview(false)}

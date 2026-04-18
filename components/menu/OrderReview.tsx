@@ -6,6 +6,7 @@ interface OrderReviewProps {
   items: OrderItem[]
   total: number
   notas: string
+  onNotasChange: (v: string) => void
   loading: boolean
   onConfirm: () => void
   onBack: () => void
@@ -15,7 +16,7 @@ function formatBs(usd: number, tasa: number) {
   return `Bs. ${(usd * tasa).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
-export default function OrderReview({ mesa, items, total, notas, loading, onConfirm, onBack }: OrderReviewProps) {
+export default function OrderReview({ mesa, items, total, notas, onNotasChange, loading, onConfirm, onBack }: OrderReviewProps) {
   const { tasa } = useTasaBCV()
 
   return (
@@ -58,11 +59,16 @@ export default function OrderReview({ mesa, items, total, notas, loading, onConf
             </div>
           ))}
 
-          {notas && (
-            <div className="pt-2 border-t border-gray-100">
-              <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2">📝 {notas}</p>
-            </div>
-          )}
+          <div className="pt-2 border-t border-gray-100">
+            <p className="text-xs text-gray-400 font-medium mb-1.5">📝 Comentario general</p>
+            <textarea
+              value={notas}
+              onChange={(e) => onNotasChange(e.target.value)}
+              placeholder="Alguna indicación para el pedido completo…"
+              rows={2}
+              className="w-full text-sm text-gray-700 bg-gray-50 border border-gray-200 rounded-xl px-3 py-2 resize-none focus:outline-none focus:ring-2 focus:ring-blue-300 placeholder-gray-400"
+            />
+          </div>
 
           <div className="pt-2 border-t border-gray-100 flex justify-between items-center">
             <span className="font-bold text-gray-900">Total</span>
