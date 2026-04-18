@@ -106,7 +106,7 @@ function LoginForm() {
                 <button
                   type="button"
                   onClick={() => setShowPassword((v) => !v)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 transition-opacity"
+                  className="absolute right-0 top-0 h-full px-4 flex items-center justify-center transition-opacity"
                   style={{ color: 'rgba(255,255,255,0.4)' }}
                 >
                   {showPassword ? (
