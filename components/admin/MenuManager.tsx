@@ -20,8 +20,8 @@ interface MenuManagerProps {
 }
 
 export default function MenuManager({ restauranteId }: MenuManagerProps) {
-  const { menu } = useMenu(restauranteId, false)
-  const { addItem, updateItem, toggleDisponible, deleteItem, saving } = useAdminMenu(restauranteId)
+  const { menu, retry: reloadMenu } = useMenu(restauranteId, false)
+  const { addItem, updateItem, toggleDisponible, deleteItem, saving, saveError } = useAdminMenu(restauranteId)
   const { tasa } = useTasaBCV()
 
   const [showForm, setShowForm] = useState(false)
@@ -37,12 +37,14 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
   async function handleAdd(data: Omit<MenuItem, 'id'>) {
     await addItem(data)
     setShowForm(false)
+    reloadMenu()
   }
 
   async function handleEdit(data: Omit<MenuItem, 'id'>) {
     if (!editing) return
     await updateItem(editing.id, data)
     setEditing(null)
+    reloadMenu()
   }
 
   async function handlePriceSave(id: string) {
@@ -54,6 +56,11 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
 
   return (
     <div className="space-y-6">
+      {saveError && (
+        <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3">
+          {saveError}
+        </div>
+      )}
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-bold text-gray-800">Menú del restaurante</h2>
         <button onClick={() => { setShowForm(true); setEditing(null) }}
