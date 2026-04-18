@@ -30,6 +30,7 @@ export function useCart(mesa: number) {
 
   function add(item: MenuItem) { dispatch({ type: 'ADD', item }) }
   function remove(menuItemId: string) { dispatch({ type: 'REMOVE', menuItemId }) }
+  function setNota(menuItemId: string, nota: string) { dispatch({ type: 'SET_NOTA', menuItemId, nota }) }
   function clear() {
     dispatch({ type: 'CLEAR' })
     localStorage.removeItem(cartKey(mesa))
@@ -42,6 +43,6 @@ export function useCart(mesa: number) {
     items,
     total: cartTotal(items),
     totalItems: cartTotalItems(items),
-    add, remove, clear, quantityOf, hydrated,
+    add, remove, clear, quantityOf, setNota, hydrated,
   }
 }

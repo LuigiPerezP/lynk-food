@@ -19,6 +19,7 @@ export interface OrderItem {
   cantidad: number
   precio: number
   emoji: string
+  nota?: string
 }
 
 export interface Order {

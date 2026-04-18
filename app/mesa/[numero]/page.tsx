@@ -26,7 +26,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
 
   const { menu, loading: menuLoading, error: menuError, retry: retryMenu } = useMenu(RESTAURANTE_ID)
   const { categorias } = useCategorias(RESTAURANTE_ID)
-  const { items, total, totalItems, add, remove, clear, quantityOf } = useCart(mesa)
+  const { items, total, totalItems, add, remove, clear, quantityOf, setNota } = useCart(mesa)
   const { submit, loading: submitting, error } = useSubmitOrder()
 
   const [categoria, setCategoria] = useState<Categoria | 'todos'>('todos')
@@ -108,8 +108,10 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
                       key={item.id}
                       item={item}
                       quantity={quantityOf(item.id)}
+                      nota={items.find((i) => i.menuItemId === item.id)?.nota}
                       onAdd={() => add(item)}
                       onRemove={() => remove(item.id)}
+                      onNota={(nota) => setNota(item.id, nota)}
                     />
                   ))}
                 </div>

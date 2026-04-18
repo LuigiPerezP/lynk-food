@@ -26,15 +26,20 @@ export default function CartSummary({ items, total, notas, loading, onSubmit }: 
         {/* Item list */}
         <div className="mb-3 max-h-32 overflow-y-auto space-y-1.5 pr-1">
           {items.map((item) => (
-            <div key={item.menuItemId} className="flex justify-between items-center">
-              <span className="text-sm text-gray-700 flex items-center gap-1.5">
-                <span>{item.emoji}</span>
-                <span className="font-medium">{item.cantidad}×</span>
-                <span className="text-gray-600">{item.nombre}</span>
-              </span>
-              <span className="text-sm font-semibold text-gray-800">
-                ${(item.precio * item.cantidad).toFixed(2)}
-              </span>
+            <div key={item.menuItemId}>
+              <div className="flex justify-between items-center">
+                <span className="text-sm text-gray-700 flex items-center gap-1.5">
+                  <span>{item.emoji}</span>
+                  <span className="font-medium">{item.cantidad}×</span>
+                  <span className="text-gray-600">{item.nombre}</span>
+                </span>
+                <span className="text-sm font-semibold text-gray-800">
+                  ${(item.precio * item.cantidad).toFixed(2)}
+                </span>
+              </div>
+              {item.nota && (
+                <p className="text-xs text-gray-400 italic pl-6 mt-0.5">"{item.nota}"</p>
+              )}
             </div>
           ))}
         </div>

@@ -3,6 +3,7 @@ import type { MenuItem, OrderItem } from './types'
 export type CartAction =
   | { type: 'ADD'; item: MenuItem }
   | { type: 'REMOVE'; menuItemId: string }
+  | { type: 'SET_NOTA'; menuItemId: string; nota: string }
   | { type: 'CLEAR' }
   | { type: 'HYDRATE'; items: OrderItem[] }
 
@@ -28,6 +29,10 @@ export function cartReducer(state: OrderItem[], action: CartAction): OrderItem[]
         },
       ]
     }
+    case 'SET_NOTA':
+      return state.map((i) =>
+        i.menuItemId === action.menuItemId ? { ...i, nota: action.nota } : i
+      )
     case 'REMOVE': {
       const existing = state.find((i) => i.menuItemId === action.menuItemId)
       if (!existing) return state
