@@ -88,6 +88,7 @@ function LoginForm() {
               </label>
               <div className="relative">
                 <input
+                  key={showPassword ? 'text' : 'password'}
                   type={showPassword ? 'text' : 'password'}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
