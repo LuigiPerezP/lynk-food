@@ -12,6 +12,7 @@ import CategoryTabs from '@/components/menu/CategoryTabs'
 import MenuItemCard from '@/components/menu/MenuItemCard'
 import CartSummary from '@/components/menu/CartSummary'
 import OrderNotes from '@/components/menu/OrderNotes'
+import OrderReview from '@/components/menu/OrderReview'
 import OrderConfirmation from '@/components/menu/OrderConfirmation'
 import MenuSkeleton from '@/components/menu/MenuSkeleton'
 import ErrorMessage from '@/components/shared/ErrorMessage'
@@ -32,6 +33,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
   const [categoria, setCategoria] = useState<Categoria | 'todos'>('todos')
   const [notas, setNotas] = useState('')
   const [showCart, setShowCart] = useState(false)
+  const [showReview, setShowReview] = useState(false)
   const [confirmedOrder, setConfirmedOrder] = useState<{ id: string; hora: string } | null>(null)
 
   const catNames = categorias.map((c) => c.nombre)
@@ -51,11 +53,26 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
       clear()
       setNotas('')
       setShowCart(false)
+      setShowReview(false)
       setConfirmedOrder({
         id,
         hora: new Date().toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' }),
       })
     }
+  }
+
+  if (showReview) {
+    return (
+      <OrderReview
+        mesa={mesa}
+        items={items}
+        total={total}
+        notas={notas}
+        loading={submitting}
+        onConfirm={handleSubmit}
+        onBack={() => setShowReview(false)}
+      />
+    )
   }
 
   if (confirmedOrder) {
@@ -158,7 +175,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
           total={total}
           notas={notas}
           loading={submitting}
-          onSubmit={handleSubmit}
+          onSubmit={() => setShowReview(true)}
           onAdd={(menuItemId) => { const m = menu.find((i) => i.id === menuItemId); if (m) add(m) }}
           onRemove={remove}
           onNota={setNota}
