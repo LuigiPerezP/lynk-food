@@ -21,6 +21,7 @@ const EMPTY: Omit<MenuItem, 'id'> = {
 export default function MenuItemForm({ initial, onSave, onCancel, saving, categorias }: MenuItemFormProps) {
   const [form, setForm] = useState<Omit<MenuItem, 'id'>>({ ...EMPTY, ...initial })
   const [uploading, setUploading] = useState(false)
+  const [uploadError, setUploadError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
   function set<K extends keyof typeof form>(key: K, value: typeof form[K]) {
@@ -31,10 +32,13 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, catego
     const file = e.target.files?.[0]
     if (!file) return
     setUploading(true)
+    setUploadError(null)
     const ext = file.name.split('.').pop()
     const path = `menu/${Date.now()}.${ext}`
     const { error } = await supabase.storage.from('menu-images').upload(path, file, { upsert: true })
-    if (!error) {
+    if (error) {
+      setUploadError(error.message)
+    } else {
       const { data } = supabase.storage.from('menu-images').getPublicUrl(path)
       set('imagen', data.publicUrl)
     }
@@ -71,6 +75,12 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, catego
       </div>
 
       {/* Imagen */}
+      {uploadError && (
+        <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+          Error al subir: {uploadError}
+        </div>
+      )}
+
       <div>
         <label className="text-xs text-gray-500 font-medium">Imagen del plato</label>
         <div className="mt-1 flex items-center gap-3">
