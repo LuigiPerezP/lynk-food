@@ -96,14 +96,14 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
               description="Prueba con otra categoría del menú."
             />
           ) : (
-            grupos.map(({ cat, items }) => (
+            grupos.map(({ cat, items: groupItems }) => (
               <div key={cat}>
                 <p className="text-xs font-bold uppercase tracking-widest mb-2 mt-4 first:mt-0"
                   style={{ color: '#1A6BFF' }}>
                   {cat.charAt(0).toUpperCase() + cat.slice(1)}
                 </p>
                 <div className="space-y-3">
-                  {items.map((item) => (
+                  {groupItems.map((item) => (
                     <MenuItemCard
                       key={item.id}
                       item={item}
