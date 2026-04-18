@@ -88,8 +88,9 @@ function LoginForm() {
               </label>
               <div className="relative">
                 <input
-                  key={showPassword ? 'text' : 'password'}
-                  type={showPassword ? 'text' : 'password'}
+                  type="text"
+                  inputMode="text"
+                  autoComplete="current-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoFocus
@@ -100,7 +101,8 @@ function LoginForm() {
                     border: '1.5px solid rgba(255,255,255,0.15)',
                     color: 'white',
                     caretColor: '#93C5FD',
-                  }}
+                    WebkitTextSecurity: showPassword ? 'none' : 'disc',
+                  } as React.CSSProperties}
                   onFocus={(e) => (e.target.style.borderColor = 'rgba(147,197,253,0.6)')}
                   onBlur={(e) => (e.target.style.borderColor = 'rgba(255,255,255,0.15)')}
                 />
