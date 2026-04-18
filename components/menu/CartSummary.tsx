@@ -15,9 +15,10 @@ interface CartSummaryProps {
   onSubmit: () => void
   onAdd: (menuItemId: string) => void
   onRemove: (menuItemId: string) => void
+  onNota: (menuItemId: string, nota: string) => void
 }
 
-export default function CartSummary({ items, total, notas, loading, onSubmit, onAdd, onRemove }: CartSummaryProps) {
+export default function CartSummary({ items, total, notas, loading, onSubmit, onAdd, onRemove, onNota }: CartSummaryProps) {
   const { tasa } = useTasaBCV()
   if (items.length === 0) return null
 
@@ -51,9 +52,13 @@ export default function CartSummary({ items, total, notas, loading, onSubmit, on
                   </span>
                 </div>
               </div>
-              {item.nota && (
-                <p className="text-xs text-gray-400 italic pl-6 mt-0.5">"{item.nota}"</p>
-              )}
+              <input
+                type="text"
+                value={item.nota ?? ''}
+                onChange={(e) => onNota(item.menuItemId, e.target.value)}
+                placeholder="Alguna indicación… (ej: sin cebolla)"
+                className="w-full mt-1.5 text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-300 placeholder-gray-400"
+              />
             </div>
           ))}
         </div>

@@ -98,18 +98,6 @@ export default function MenuItemCard({ item, quantity, nota, onAdd, onRemove, on
         </div>
       </div>
 
-      {/* Nota por item */}
-      {quantity > 0 && (
-        <div className="px-3 pb-3 border-t border-gray-100">
-          <input
-            type="text"
-            value={nota ?? ''}
-            onChange={(e) => onNota(e.target.value)}
-            placeholder="Alguna indicación… (ej: sin cebolla)"
-            className="w-full text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-300 placeholder-gray-400"
-          />
-        </div>
-      )}
       </div>
 
       {/* Expanded image modal */}

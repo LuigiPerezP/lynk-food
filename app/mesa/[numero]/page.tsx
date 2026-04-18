@@ -161,6 +161,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
           onSubmit={handleSubmit}
           onAdd={(menuItemId) => { const m = menu.find((i) => i.id === menuItemId); if (m) add(m) }}
           onRemove={remove}
+          onNota={setNota}
         />
       )}
     </div>
