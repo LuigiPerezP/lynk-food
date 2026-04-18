@@ -1,58 +1,38 @@
 'use client'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { collection, onSnapshot, query, where } from 'firebase/firestore'
+import { useCallback, useEffect, useState } from 'react'
+import { collection, getDocs, query, where } from 'firebase/firestore'
 import { db } from '../firebase'
 import type { MenuItem } from '../types'
-
-const MAX_RETRIES = 5
-const RETRY_BASE_MS = 2000
 
 export function useMenu(restauranteId: string, soloDisponibles = true) {
   const [menu, setMenu] = useState<MenuItem[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [retryCount, setRetryCount] = useState(0)
-  const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const retry = useCallback(() => {
-    setError(null)
+  const fetchMenu = useCallback(async () => {
     setLoading(true)
-    setRetryCount((n) => n + 1)
-  }, [])
+    setError(null)
+    try {
+      const ref = collection(db, 'restaurante', restauranteId, 'menu')
+      const q = soloDisponibles
+        ? query(ref, where('disponible', '==', true))
+        : query(ref)
+      const snapshot = await getDocs(q)
+      const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as MenuItem[]
+      setMenu(items)
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Error desconocido'
+      setError(`No se pudo cargar el menú: ${msg}`)
+      console.error('[useMenu] Error:', err)
+    } finally {
+      setLoading(false)
+    }
+  }, [restauranteId, soloDisponibles])
 
   useEffect(() => {
-    const ref = collection(db, 'restaurante', restauranteId, 'menu')
-    const q = soloDisponibles
-      ? query(ref, where('disponible', '==', true))
-      : query(ref)
+    fetchMenu()
+  }, [fetchMenu])
 
-    const unsubscribe = onSnapshot(
-      q,
-      (snapshot) => {
-        if (retryTimer.current) clearTimeout(retryTimer.current)
-        const items = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })) as MenuItem[]
-        setMenu(items)
-        setLoading(false)
-        setError(null)
-      },
-      (err) => {
-        setLoading(false)
-        if (retryCount < MAX_RETRIES) {
-          const delay = RETRY_BASE_MS * Math.pow(2, retryCount)
-          setError(`Sin conexión. Reintentando en ${Math.round(delay / 1000)}s…`)
-          retryTimer.current = setTimeout(() => setRetryCount((n) => n + 1), delay)
-        } else {
-          setError('No se pudo conectar con el servidor. Verifica tu conexión.')
-        }
-      }
-    )
-
-    return () => {
-      unsubscribe()
-      if (retryTimer.current) clearTimeout(retryTimer.current)
-    }
-  }, [restauranteId, soloDisponibles, retryCount])
-
-  return { menu, loading, error, retry }
+  return { menu, loading, error, retry: fetchMenu }
 }
