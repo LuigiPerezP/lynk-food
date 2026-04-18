@@ -58,11 +58,16 @@ export default function OrderCard({ order, onAction, loadingId, compact }: Order
       </div>
 
       {/* Items */}
-      <ul className="space-y-0.5 mb-3">
+      <ul className="space-y-1 mb-3">
         {order.items.map((item, i) => (
-          <li key={i} className="flex justify-between text-sm text-gray-700">
-            <span>{item.emoji} {item.cantidad}× {item.nombre}</span>
-            <span className="text-gray-400 text-xs ml-2">${(item.precio * item.cantidad).toFixed(2)}</span>
+          <li key={i}>
+            <div className="flex justify-between text-sm text-gray-700">
+              <span>{item.emoji} {item.cantidad}× {item.nombre}</span>
+              <span className="text-gray-400 text-xs ml-2">${(item.precio * item.cantidad).toFixed(2)}</span>
+            </div>
+            {item.nota && (
+              <p className="text-xs text-amber-700 italic pl-5 mt-0.5">↳ {item.nota}</p>
+            )}
           </li>
         ))}
       </ul>
