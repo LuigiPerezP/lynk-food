@@ -4,6 +4,7 @@ import { use, useState } from 'react'
 import { useMenu } from '@/lib/hooks/useMenu'
 import { useCart } from '@/lib/hooks/useCart'
 import { useSubmitOrder } from '@/lib/hooks/useSubmitOrder'
+import { useCategorias } from '@/lib/hooks/useCategorias'
 import type { Categoria } from '@/lib/types'
 
 import MenuHeader from '@/components/menu/MenuHeader'
@@ -24,6 +25,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
   const mesa = parseInt(numero, 10)
 
   const { menu, loading: menuLoading, error: menuError, retry: retryMenu } = useMenu(RESTAURANTE_ID)
+  const { categorias } = useCategorias(RESTAURANTE_ID)
   const { items, total, totalItems, add, remove, clear, quantityOf } = useCart(mesa)
   const { submit, loading: submitting, error } = useSubmitOrder()
 
@@ -32,16 +34,13 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
   const [showCart, setShowCart] = useState(false)
   const [confirmedOrder, setConfirmedOrder] = useState<{ id: string; hora: string } | null>(null)
 
-  const ORDEN_CATEGORIAS: Categoria[] = ['entradas', 'platos', 'postres', 'bebidas']
-  const LABEL_CATEGORIA: Record<Categoria, string> = {
-    entradas: 'Entradas', platos: 'Platos', postres: 'Postres', bebidas: 'Bebidas',
-  }
+  const catNames = categorias.map((c) => c.nombre)
 
   const filtered = categoria === 'todos'
     ? menu
     : menu.filter((i) => i.categoria === categoria)
 
-  const grupos = ORDEN_CATEGORIAS
+  const grupos = catNames
     .map((cat) => ({ cat, items: filtered.filter((i) => i.categoria === cat) }))
     .filter((g) => g.items.length > 0)
 
@@ -75,7 +74,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
       <MenuHeader restaurante={RESTAURANTE_NOMBRE} mesa={mesa} />
 
       <div className="sticky top-[61px] z-10 bg-gray-50">
-        <CategoryTabs selected={categoria} onChange={setCategoria} />
+        <CategoryTabs selected={categoria} onChange={setCategoria} categorias={catNames} />
       </div>
 
       {menuLoading ? (
@@ -101,7 +100,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
               <div key={cat}>
                 <p className="text-xs font-bold uppercase tracking-widest mb-2 mt-4 first:mt-0"
                   style={{ color: '#1A6BFF' }}>
-                  {LABEL_CATEGORIA[cat]}
+                  {cat.charAt(0).toUpperCase() + cat.slice(1)}
                 </p>
                 <div className="space-y-3">
                   {items.map((item) => (

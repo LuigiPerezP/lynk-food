@@ -1,20 +1,23 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { useCategorias } from '@/lib/hooks/useCategorias'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import LogoutButton from '@/components/shared/LogoutButton'
 
 const MenuManager = dynamic(() => import('@/components/admin/MenuManager'), { ssr: false })
+const CategoryManager = dynamic(() => import('@/components/admin/CategoryManager'), { ssr: false })
 const TableManager = dynamic(() => import('@/components/admin/TableManager'), { ssr: false })
 const DailyReport = dynamic(() => import('@/components/admin/DailyReport'), { ssr: false })
 
 const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'lynkfood'
 
-type Tab = 'menu' | 'mesas' | 'reportes'
+type Tab = 'menu' | 'categorias' | 'mesas' | 'reportes'
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
   { id: 'menu', label: 'Menú', emoji: '📋' },
+  { id: 'categorias', label: 'Categorías', emoji: '🗂️' },
   { id: 'mesas', label: 'Mesas', emoji: '🪑' },
   { id: 'reportes', label: 'Reportes', emoji: '📊' },
 ]
@@ -22,6 +25,7 @@ const TABS: { id: Tab; label: string; emoji: string }[] = [
 export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('menu')
   const [baseUrl, setBaseUrl] = useState('')
+  const { categorias, addCategoria, deleteCategoria } = useCategorias(RESTAURANTE_ID)
 
   useEffect(() => {
     setBaseUrl(window.location.origin)
@@ -69,6 +73,9 @@ export default function AdminPage() {
 
       <div className="max-w-3xl mx-auto px-4 py-6">
         {tab === 'menu' && <MenuManager restauranteId={RESTAURANTE_ID} />}
+        {tab === 'categorias' && (
+          <CategoryManager categorias={categorias} onAdd={addCategoria} onDelete={deleteCategoria} />
+        )}
         {tab === 'mesas' && <TableManager baseUrl={baseUrl} />}
         {tab === 'reportes' && <DailyReport restauranteId={RESTAURANTE_ID} />}
       </div>

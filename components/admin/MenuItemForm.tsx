@@ -1,15 +1,14 @@
 'use client'
 
 import { useState } from 'react'
-import type { Categoria, MenuItem } from '@/lib/types'
-
-const CATEGORIAS: Categoria[] = ['entradas', 'platos', 'bebidas', 'postres']
+import type { MenuItem } from '@/lib/types'
 
 interface MenuItemFormProps {
   initial?: Partial<MenuItem>
   onSave: (data: Omit<MenuItem, 'id'>) => Promise<void>
   onCancel: () => void
   saving: boolean
+  categorias: string[]
 }
 
 const EMPTY: Omit<MenuItem, 'id'> = {
@@ -17,7 +16,7 @@ const EMPTY: Omit<MenuItem, 'id'> = {
   categoria: 'platos', disponible: true, emoji: '🍽️',
 }
 
-export default function MenuItemForm({ initial, onSave, onCancel, saving }: MenuItemFormProps) {
+export default function MenuItemForm({ initial, onSave, onCancel, saving, categorias }: MenuItemFormProps) {
   const [form, setForm] = useState<Omit<MenuItem, 'id'>>({ ...EMPTY, ...initial })
 
   function set<K extends keyof typeof form>(key: K, value: typeof form[K]) {
@@ -62,9 +61,9 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving }: Menu
         </div>
         <div className="flex-1">
           <label className="text-xs text-gray-500 font-medium">Categoría</label>
-          <select value={form.categoria} onChange={(e) => set('categoria', e.target.value as Categoria)}
+          <select value={form.categoria} onChange={(e) => set('categoria', e.target.value)}
             className={field}>
-            {CATEGORIAS.map((c) => (
+            {categorias.map((c) => (
               <option key={c} value={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</option>
             ))}
           </select>

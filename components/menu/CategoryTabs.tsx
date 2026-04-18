@@ -1,23 +1,21 @@
 import type { Categoria } from '@/lib/types'
 
-const CATEGORIAS: { value: Categoria | 'todos'; label: string; emoji: string }[] = [
-  { value: 'todos', label: 'Todos', emoji: '🍴' },
-  { value: 'entradas', label: 'Entradas', emoji: '🥗' },
-  { value: 'platos', label: 'Platos', emoji: '🍛' },
-  { value: 'bebidas', label: 'Bebidas', emoji: '🥤' },
-  { value: 'postres', label: 'Postres', emoji: '🍮' },
-]
-
 interface CategoryTabsProps {
   selected: Categoria | 'todos'
   onChange: (cat: Categoria | 'todos') => void
+  categorias: string[]
 }
 
-export default function CategoryTabs({ selected, onChange }: CategoryTabsProps) {
+export default function CategoryTabs({ selected, onChange, categorias }: CategoryTabsProps) {
+  const tabs = [
+    { value: 'todos' as const, label: 'Todos', emoji: '🍴' },
+    ...categorias.map((c) => ({ value: c, label: c.charAt(0).toUpperCase() + c.slice(1), emoji: '' })),
+  ]
+
   return (
     <div className="overflow-x-auto bg-white border-b border-gray-100">
       <div className="flex gap-1 px-4 py-3 min-w-max">
-        {CATEGORIAS.map((cat) => {
+        {tabs.map((cat) => {
           const active = selected === cat.value
           return (
             <button
@@ -33,7 +31,7 @@ export default function CategoryTabs({ selected, onChange }: CategoryTabsProps) 
                 color: '#6B7280',
               }}
             >
-              <span>{cat.emoji}</span>
+              {cat.emoji && <span>{cat.emoji}</span>}
               <span>{cat.label}</span>
             </button>
           )

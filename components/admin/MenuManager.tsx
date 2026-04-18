@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useMenu } from '@/lib/hooks/useMenu'
 import { useAdminMenu } from '@/lib/hooks/useAdminMenu'
+import { useCategorias } from '@/lib/hooks/useCategorias'
 import { useTasaBCV } from '@/lib/hooks/useTasaBCV'
 import MenuItemForm from './MenuItemForm'
 import type { MenuItem } from '@/lib/types'
@@ -11,9 +12,6 @@ function formatBs(usd: number, tasa: number): string {
   return `Bs. ${(usd * tasa).toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
 }
 
-const CATEGORIA_LABEL: Record<string, string> = {
-  entradas: 'Entradas', platos: 'Platos', bebidas: 'Bebidas', postres: 'Postres',
-}
 
 interface MenuManagerProps {
   restauranteId: string
@@ -22,6 +20,7 @@ interface MenuManagerProps {
 export default function MenuManager({ restauranteId }: MenuManagerProps) {
   const { menu, retry: reloadMenu } = useMenu(restauranteId, false)
   const { addItem, updateItem, toggleDisponible, deleteItem, saving, saveError } = useAdminMenu(restauranteId)
+  const { categorias } = useCategorias(restauranteId)
   const { tasa } = useTasaBCV()
 
   const [showForm, setShowForm] = useState(false)
@@ -29,7 +28,8 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
   const [editingPrice, setEditingPrice] = useState<{ id: string; value: string } | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
-  const byCategory = ['entradas', 'platos', 'bebidas', 'postres'].reduce<Record<string, MenuItem[]>>(
+  const catNames = categorias.map((c) => c.nombre)
+  const byCategory = catNames.reduce<Record<string, MenuItem[]>>(
     (acc, cat) => ({ ...acc, [cat]: menu.filter((i) => i.categoria === cat) }),
     {}
   )
@@ -71,20 +71,20 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
       </div>
 
       {(showForm && !editing) && (
-        <MenuItemForm onSave={handleAdd} onCancel={() => setShowForm(false)} saving={saving} />
+        <MenuItemForm onSave={handleAdd} onCancel={() => setShowForm(false)} saving={saving} categorias={catNames} />
       )}
 
       {Object.entries(byCategory).map(([cat, items]) => (
         <div key={cat}>
           <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-2">
-            {CATEGORIA_LABEL[cat]} ({items.length})
+            {cat.charAt(0).toUpperCase() + cat.slice(1)} ({items.length})
           </h3>
           <div className="space-y-2">
             {items.map((item) => (
               <div key={item.id}>
                 {editing?.id === item.id ? (
                   <MenuItemForm initial={editing} onSave={handleEdit}
-                    onCancel={() => setEditing(null)} saving={saving} />
+                    onCancel={() => setEditing(null)} saving={saving} categorias={catNames} />
                 ) : (
                   <div className={`flex items-center gap-3 p-3 bg-white rounded-xl border transition-opacity ${
                     !item.disponible ? 'opacity-50' : ''

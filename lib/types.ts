@@ -1,4 +1,4 @@
-export type Categoria = 'entradas' | 'platos' | 'bebidas' | 'postres'
+export type Categoria = string
 
 export type OrderStatus = 'nuevo' | 'preparando' | 'listo' | 'entregado'
 
