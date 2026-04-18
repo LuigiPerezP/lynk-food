@@ -13,9 +13,11 @@ interface CartSummaryProps {
   notas: string
   loading: boolean
   onSubmit: () => void
+  onAdd: (menuItemId: string) => void
+  onRemove: (menuItemId: string) => void
 }
 
-export default function CartSummary({ items, total, notas, loading, onSubmit }: CartSummaryProps) {
+export default function CartSummary({ items, total, notas, loading, onSubmit, onAdd, onRemove }: CartSummaryProps) {
   const { tasa } = useTasaBCV()
   if (items.length === 0) return null
 
@@ -27,15 +29,27 @@ export default function CartSummary({ items, total, notas, loading, onSubmit }: 
         <div className="mb-3 max-h-32 overflow-y-auto space-y-1.5 pr-1">
           {items.map((item) => (
             <div key={item.menuItemId}>
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-gray-700 flex items-center gap-1.5">
+              <div className="flex justify-between items-center gap-2">
+                <span className="text-sm text-gray-700 flex items-center gap-1.5 min-w-0">
                   <span>{item.emoji}</span>
-                  <span className="font-medium">{item.cantidad}×</span>
-                  <span className="text-gray-600">{item.nombre}</span>
+                  <span className="truncate text-gray-600">{item.nombre}</span>
                 </span>
-                <span className="text-sm font-semibold text-gray-800">
-                  ${(item.precio * item.cantidad).toFixed(2)}
-                </span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button onClick={() => onRemove(item.menuItemId)}
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold transition-all active:scale-90"
+                    style={{ background: '#EEF2FF', color: '#0D3BB5' }}>
+                    −
+                  </button>
+                  <span className="text-sm font-bold text-gray-900 w-4 text-center">{item.cantidad}</span>
+                  <button onClick={() => onAdd(item.menuItemId)}
+                    className="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold text-white transition-all active:scale-90"
+                    style={{ background: '#1A6BFF' }}>
+                    +
+                  </button>
+                  <span className="text-sm font-semibold text-gray-800 w-14 text-right">
+                    ${(item.precio * item.cantidad).toFixed(2)}
+                  </span>
+                </div>
               </div>
               {item.nota && (
                 <p className="text-xs text-gray-400 italic pl-6 mt-0.5">"{item.nota}"</p>
