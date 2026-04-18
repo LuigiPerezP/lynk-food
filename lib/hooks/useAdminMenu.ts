@@ -20,6 +20,7 @@ export function useAdminMenu(restauranteId: string) {
         categoria: item.categoria,
         disponible: item.disponible,
         emoji: item.emoji,
+        imagen: item.imagen ?? null,
       })
       if (error) throw error
     } catch (err) {

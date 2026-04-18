@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { useMenu } from '@/lib/hooks/useMenu'
 import { useAdminMenu } from '@/lib/hooks/useAdminMenu'
 import { useCategorias } from '@/lib/hooks/useCategorias'
@@ -89,7 +90,13 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
                   <div className={`flex items-center gap-3 p-3 bg-white rounded-xl border transition-opacity ${
                     !item.disponible ? 'opacity-50' : ''
                   }`}>
-                    <span className="text-2xl">{item.emoji}</span>
+                    {item.imagen ? (
+                      <div className="relative w-9 h-9 rounded-lg overflow-hidden shrink-0">
+                        <Image src={item.imagen} alt={item.nombre} fill className="object-cover" />
+                      </div>
+                    ) : (
+                      <span className="text-2xl">{item.emoji}</span>
+                    )}
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-sm text-gray-900 truncate">{item.nombre}</p>
                       <p className="text-xs text-gray-400 truncate">{item.descripcion}</p>

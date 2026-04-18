@@ -1,6 +1,8 @@
 'use client'
 
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import Image from 'next/image'
+import { supabase } from '@/lib/supabase'
 import type { MenuItem } from '@/lib/types'
 
 interface MenuItemFormProps {
@@ -18,9 +20,25 @@ const EMPTY: Omit<MenuItem, 'id'> = {
 
 export default function MenuItemForm({ initial, onSave, onCancel, saving, categorias }: MenuItemFormProps) {
   const [form, setForm] = useState<Omit<MenuItem, 'id'>>({ ...EMPTY, ...initial })
+  const [uploading, setUploading] = useState(false)
+  const fileRef = useRef<HTMLInputElement>(null)
 
   function set<K extends keyof typeof form>(key: K, value: typeof form[K]) {
     setForm((f) => ({ ...f, [key]: value }))
+  }
+
+  async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const ext = file.name.split('.').pop()
+    const path = `menu/${Date.now()}.${ext}`
+    const { error } = await supabase.storage.from('menu-images').upload(path, file, { upsert: true })
+    if (!error) {
+      const { data } = supabase.storage.from('menu-images').getPublicUrl(path)
+      set('imagen', data.publicUrl)
+    }
+    setUploading(false)
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -52,6 +70,36 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, catego
           className={`${field} resize-none`} rows={2} placeholder="Describe el plato…" />
       </div>
 
+      {/* Imagen */}
+      <div>
+        <label className="text-xs text-gray-500 font-medium">Imagen del plato</label>
+        <div className="mt-1 flex items-center gap-3">
+          {form.imagen ? (
+            <div className="relative w-16 h-16 rounded-xl overflow-hidden border border-gray-200 shrink-0">
+              <Image src={form.imagen} alt="preview" fill className="object-cover" />
+            </div>
+          ) : (
+            <div className="w-16 h-16 rounded-xl border-2 border-dashed border-gray-200 flex items-center justify-center text-2xl shrink-0">
+              🖼️
+            </div>
+          )}
+          <div className="flex flex-col gap-1">
+            <button type="button" onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors">
+              {uploading ? 'Subiendo…' : form.imagen ? 'Cambiar imagen' : 'Subir imagen'}
+            </button>
+            {form.imagen && (
+              <button type="button" onClick={() => set('imagen', undefined)}
+                className="px-3 py-1.5 text-xs text-red-500 hover:text-red-700 transition-colors">
+                Quitar imagen
+              </button>
+            )}
+          </div>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+        </div>
+      </div>
+
       <div className="flex gap-3">
         <div className="flex-1">
           <label className="text-xs text-gray-500 font-medium">Precio ($) *</label>
@@ -75,7 +123,7 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, catego
           className="px-4 py-2 text-sm text-gray-600 rounded-lg hover:bg-gray-200 transition-colors">
           Cancelar
         </button>
-        <button type="submit" disabled={saving}
+        <button type="submit" disabled={saving || uploading}
           className="px-4 py-2 text-sm font-semibold text-white rounded-lg disabled:opacity-50 transition-colors"
           style={{ backgroundColor: '#1A6BFF' }}>
           {saving ? 'Guardando…' : initial?.nombre ? 'Guardar cambios' : 'Agregar plato'}

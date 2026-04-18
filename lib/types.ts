@@ -10,6 +10,7 @@ export interface MenuItem {
   categoria: Categoria
   disponible: boolean
   emoji: string
+  imagen?: string
 }
 
 export interface OrderItem {
