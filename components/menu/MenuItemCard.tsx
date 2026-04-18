@@ -25,7 +25,8 @@ export default function MenuItemCard({ item, quantity, nota, onAdd, onRemove, on
 
   return (
     <>
-      <div className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 flex items-stretch transition-shadow hover:shadow-md">
+      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-shadow hover:shadow-md">
+      <div className="flex items-stretch">
         {/* Image / Emoji panel */}
         <div
           onClick={() => item.imagen && setExpanded(true)}
@@ -99,16 +100,17 @@ export default function MenuItemCard({ item, quantity, nota, onAdd, onRemove, on
 
       {/* Nota por item */}
       {quantity > 0 && (
-        <div className="px-3 pb-3 bg-white rounded-b-2xl -mt-2 pt-0 border border-t-0 border-gray-100">
+        <div className="px-3 pb-3 border-t border-gray-100">
           <input
             type="text"
             value={nota ?? ''}
             onChange={(e) => onNota(e.target.value)}
             placeholder="Alguna indicación… (ej: sin cebolla)"
-            className="w-full text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-300 placeholder-gray-400"
+            className="w-full text-xs text-gray-600 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2 mt-2 focus:outline-none focus:ring-2 focus:ring-blue-300 placeholder-gray-400"
           />
         </div>
       )}
+      </div>
 
       {/* Expanded image modal */}
       {expanded && item.imagen && (
