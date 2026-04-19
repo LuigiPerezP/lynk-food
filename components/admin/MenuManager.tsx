@@ -27,6 +27,9 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
   const [editing, setEditing] = useState<MenuItem | null>(null)
   const [editingPrice, setEditingPrice] = useState<{ id: string; value: string } | null>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set())
+
+  const visibleMenu = menu.filter(i => !deletedIds.has(i.id))
 
   async function handleAdd(data: Omit<MenuItem, 'id'>) {
     await addItem(data)
@@ -101,8 +104,11 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
 
         {confirmDelete === item.id ? (
           <div className="flex gap-1">
-            <button onClick={() => { deleteItem(item.id); setConfirmDelete(null); reloadMenu() }}
-              className="text-xs text-red-600 font-semibold hover:underline">Sí</button>
+            <button onClick={() => {
+              setDeletedIds(prev => new Set(prev).add(item.id))
+              setConfirmDelete(null)
+              deleteItem(item.id).then(() => reloadMenu())
+            }} className="text-xs text-red-600 font-semibold hover:underline">Sí</button>
             <button onClick={() => setConfirmDelete(null)}
               className="text-xs text-gray-500 hover:underline">No</button>
           </div>
@@ -144,9 +150,8 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
 
         if (hasSubcats) {
           const totalItems = subcats.reduce((sum, sub) =>
-            sum + menu.filter(i => i.categoria === sub.nombre).length, 0)
-          // Also items directly under section (legacy)
-          const directItems = menu.filter(i => i.categoria === seccion.nombre)
+            sum + visibleMenu.filter(i => i.categoria === sub.nombre).length, 0)
+          const directItems = visibleMenu.filter(i => i.categoria === seccion.nombre)
           const total = totalItems + directItems.length
           if (total === 0) return null
 
@@ -160,7 +165,7 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
                   <div className="space-y-2">{directItems.map(renderItem)}</div>
                 )}
                 {subcats.map((sub) => {
-                  const items = menu.filter(i => i.categoria === sub.nombre)
+                  const items = visibleMenu.filter(i => i.categoria === sub.nombre)
                   if (items.length === 0) return (
                     <div key={sub.id}>
                       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
@@ -184,7 +189,7 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
         }
 
         // Section with no subcats
-        const items = menu.filter(i => i.categoria === seccion.nombre)
+        const items = visibleMenu.filter(i => i.categoria === seccion.nombre)
         return (
           <div key={seccion.id}>
             <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
