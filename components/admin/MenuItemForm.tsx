@@ -142,8 +142,10 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
       <div className="flex gap-3">
         <div className="flex-1">
           <label className="text-xs text-gray-500 font-medium">Precio ($) *</label>
-          <input type="number" min="0" step="0.5" value={form.precio}
+          <input type="number" min="0" step="0.5"
+            value={form.precio === 0 ? '' : form.precio}
             onChange={(e) => set('precio', parseFloat(e.target.value) || 0)}
+            placeholder="0"
             className={field} required />
         </div>
         <div className="flex-1">
