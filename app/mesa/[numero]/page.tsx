@@ -11,7 +11,8 @@ import CategoryTabs from '@/components/menu/CategoryTabs'
 import MenuItemCard from '@/components/menu/MenuItemCard'
 import CartSummary from '@/components/menu/CartSummary'
 import OrderReview from '@/components/menu/OrderReview'
-import OrderConfirmation from '@/components/menu/OrderConfirmation'
+import OrderTracking from '@/components/menu/OrderTracking'
+import { useTableOrders } from '@/lib/hooks/useTableOrders'
 import MenuSkeleton from '@/components/menu/MenuSkeleton'
 import ErrorMessage from '@/components/shared/ErrorMessage'
 import EmptyState from '@/components/shared/EmptyState'
@@ -25,6 +26,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
 
   const { menu, loading: menuLoading, error: menuError, retry: retryMenu } = useMenu(RESTAURANTE_ID)
   const { secciones, getSubcats, leafCats } = useCategorias(RESTAURANTE_ID)
+  const { orders: activeOrders } = useTableOrders(RESTAURANTE_ID, mesa)
   const { items, total, totalItems, add, remove, clear, quantityOf, setNota } = useCart(mesa)
   const { submit, loading: submitting, error } = useSubmitOrder()
 
@@ -33,7 +35,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
   const [notas, setNotas] = useState('')
   const [showCart, setShowCart] = useState(false)
   const [showReview, setShowReview] = useState(false)
-  const [confirmedOrder, setConfirmedOrder] = useState<{ id: string; hora: string } | null>(null)
+  const [showTracking, setShowTracking] = useState(false)
 
   // Get all leaf cat names belonging to a section (for filtering)
   function getCatsForSection(seccionNombre: string): string[] {
@@ -104,11 +106,18 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
       setNotas('')
       setShowCart(false)
       setShowReview(false)
-      setConfirmedOrder({
-        id,
-        hora: new Date().toLocaleTimeString('es-VE', { hour: '2-digit', minute: '2-digit' }),
-      })
+      setShowTracking(true)
     }
+  }
+
+  if (showTracking) {
+    return (
+      <OrderTracking
+        restauranteId={RESTAURANTE_ID}
+        mesa={mesa}
+        onBack={() => setShowTracking(false)}
+      />
+    )
   }
 
   if (showReview) {
@@ -127,16 +136,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
     )
   }
 
-  if (confirmedOrder) {
-    return (
-      <OrderConfirmation
-        orderId={confirmedOrder.id}
-        mesa={mesa}
-        hora={confirmedOrder.hora}
-        onBack={() => setConfirmedOrder(null)}
-      />
-    )
-  }
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -205,6 +205,20 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
         </div>
       )}
 
+      {/* Botón Mis pedidos */}
+      {!showCart && activeOrders.length > 0 && (
+        <button onClick={() => setShowTracking(true)}
+          className="fixed bottom-6 left-4 z-30 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-lg text-white text-sm font-semibold"
+          style={{ background: 'linear-gradient(135deg, #059669, #10B981)', boxShadow: '0 4px 15px rgba(5,150,105,0.4)' }}>
+          <span className="w-5 h-5 bg-white rounded-full flex items-center justify-center text-xs font-bold"
+            style={{ color: '#059669' }}>
+            {activeOrders.length}
+          </span>
+          <span>Mis pedidos</span>
+        </button>
+      )}
+
+      {/* Botón Ver carrito */}
       {!showCart && totalItems > 0 && (
         <button onClick={() => setShowCart(true)}
           className="fixed bottom-6 right-4 z-30 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-lg text-white text-sm font-semibold"
