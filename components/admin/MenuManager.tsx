@@ -59,11 +59,11 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
     return (
       <div key={item.id} className={`flex items-center gap-3 p-3 bg-white rounded-xl border transition-opacity ${!item.disponible ? 'opacity-50' : ''}`}>
         {item.imagen ? (
-          <div className="relative w-9 h-9 rounded-lg overflow-hidden shrink-0">
+          <div className="relative w-8 h-8 rounded-lg overflow-hidden shrink-0 flex-none">
             <Image src={item.imagen} alt={item.nombre} fill className="object-cover" />
           </div>
         ) : (
-          <span className="text-2xl">{item.emoji}</span>
+          <span className="text-xl shrink-0">{item.emoji}</span>
         )}
         <div className="flex-1 min-w-0">
           <p className="font-medium text-sm text-gray-900 truncate">{item.nombre}</p>
