@@ -51,39 +51,49 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
     return menu.filter(i => getCatsForSection(selectedSection).includes(i.categoria))
   })()
 
-  // Groups for display
+  // Groups for display: { sectionHeader, subcats: [{header, items}] }
   const grupos = (() => {
-    if (selectedSubcat) {
-      return [{ header: selectedSubcat, items: filtered }]
-    }
-    if (selectedSection !== 'todos') {
-      const seccion = secciones.find(s => s.nombre === selectedSection)
-      if (!seccion) return [{ header: selectedSection, items: filtered }]
-      const subcats = getSubcats(seccion.id)
-      if (subcats.length === 0) return [{ header: selectedSection, items: filtered }]
-      return subcats
-        .map(sub => ({ header: sub.nombre, items: filtered.filter(i => i.categoria === sub.nombre) }))
-        .filter(g => g.items.length > 0)
-    }
-    // todos: group by section → subcategory, then any uncategorized items
-    const grouped: { header: string; items: typeof menu }[] = []
-    const seen = new Set<string>()
-    for (const seccion of secciones) {
+    type Subgroup = { header: string; items: typeof menu }
+    type Group = { section: string; subcats: Subgroup[] }
+
+    function buildSection(seccionNombre: string, itemPool: typeof menu): Group | null {
+      const seccion = secciones.find(s => s.nombre === seccionNombre)
+      if (!seccion) return null
       const subcats = getSubcats(seccion.id)
       if (subcats.length > 0) {
-        for (const sub of subcats) {
-          const its = menu.filter(i => i.categoria === sub.nombre)
-          if (its.length > 0) { grouped.push({ header: sub.nombre, items: its }); seen.add(sub.nombre) }
-        }
-      } else {
-        const its = menu.filter(i => i.categoria === seccion.nombre)
-        if (its.length > 0) { grouped.push({ header: seccion.nombre, items: its }); seen.add(seccion.nombre) }
+        const subs = subcats
+          .map(sub => ({ header: sub.nombre, items: itemPool.filter(i => i.categoria === sub.nombre) }))
+          .filter(g => g.items.length > 0)
+        if (subs.length === 0) return null
+        return { section: seccionNombre, subcats: subs }
+      }
+      const its = itemPool.filter(i => i.categoria === seccionNombre)
+      if (its.length === 0) return null
+      return { section: seccionNombre, subcats: [{ header: seccionNombre, items: its }] }
+    }
+
+    if (selectedSubcat) {
+      return [{ section: selectedSubcat, subcats: [{ header: selectedSubcat, items: filtered }] }]
+    }
+
+    if (selectedSection !== 'todos') {
+      const g = buildSection(selectedSection, filtered)
+      return g ? [g] : []
+    }
+
+    // todos
+    const result: Group[] = []
+    const seen = new Set<string>()
+    for (const seccion of secciones) {
+      const g = buildSection(seccion.nombre, menu)
+      if (g) {
+        result.push(g)
+        g.subcats.forEach(s => s.items.forEach(i => seen.add(i.id)))
       }
     }
-    // Any items whose categoria doesn't match the hierarchy
-    const rest = menu.filter(i => !seen.has(i.categoria))
-    if (rest.length > 0) grouped.push({ header: 'Otros', items: rest })
-    return grouped
+    const rest = menu.filter(i => !seen.has(i.id))
+    if (rest.length > 0) result.push({ section: 'Otros', subcats: [{ header: 'Otros', items: rest }] })
+    return result
   })()
 
   async function handleSubmit() {
@@ -156,27 +166,41 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
             <EmptyState emoji="🔍" title="Sin platos en esta categoría"
               description="Prueba con otra categoría del menú." />
           ) : (
-            grupos.map(({ header, items: groupItems }) => (
-              <div key={header}>
-                <p className="text-xs font-bold uppercase tracking-widest mb-2 mt-4 first:mt-0"
-                  style={{ color: '#1A6BFF' }}>
-                  {header.charAt(0).toUpperCase() + header.slice(1)}
-                </p>
-                <div className="space-y-3">
-                  {groupItems.map((item) => (
-                    <MenuItemCard
-                      key={item.id}
-                      item={item}
-                      quantity={quantityOf(item.id)}
-                      nota={items.find((i) => i.menuItemId === item.id)?.nota}
-                      onAdd={() => add(item)}
-                      onRemove={() => remove(item.id)}
-                      onNota={(nota) => setNota(item.id, nota)}
-                    />
+            grupos.map(({ section, subcats }) => {
+              const multiSub = subcats.length > 1 || (subcats.length === 1 && subcats[0].header !== section)
+              return (
+                <div key={section} className="mt-2">
+                  {/* Section header */}
+                  <p className="text-base font-extrabold uppercase tracking-widest mb-3 mt-5 first:mt-0"
+                    style={{ color: '#0D3BB5' }}>
+                    {section.charAt(0).toUpperCase() + section.slice(1)}
+                  </p>
+                  {subcats.map(({ header, items: groupItems }) => (
+                    <div key={header} className="mb-4">
+                      {/* Subcategory subheader */}
+                      {multiSub && (
+                        <p className="text-xs font-semibold uppercase tracking-widest mb-2 pl-1 text-gray-400">
+                          {header.charAt(0).toUpperCase() + header.slice(1)}
+                        </p>
+                      )}
+                      <div className="space-y-3">
+                        {groupItems.map((item) => (
+                          <MenuItemCard
+                            key={item.id}
+                            item={item}
+                            quantity={quantityOf(item.id)}
+                            nota={items.find((i) => i.menuItemId === item.id)?.nota}
+                            onAdd={() => add(item)}
+                            onRemove={() => remove(item.id)}
+                            onNota={(nota) => setNota(item.id, nota)}
+                          />
+                        ))}
+                      </div>
+                    </div>
                   ))}
                 </div>
-              </div>
-            ))
+              )
+            })
           )}
         </div>
       )}
