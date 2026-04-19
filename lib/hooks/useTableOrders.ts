@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { supabase } from '../supabase'
 import type { Order, OrderStatus } from '../types'
 
@@ -21,27 +21,41 @@ function mapRow(row: Record<string, unknown>): Order {
 export function useTableOrders(restauranteId: string, mesa: number) {
   const [orders, setOrders] = useState<Order[]>([])
   const [loading, setLoading] = useState(true)
+  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null)
 
   const fetch = useCallback(async () => {
-    const { data } = await supabase
-      .from('pedidos')
-      .select('*')
-      .eq('restaurante_id', restauranteId)
-      .eq('mesa', mesa)
-      .in('estado', ACTIVE)
-      .order('created_at', { ascending: true })
-    setOrders((data ?? []).map(mapRow))
+    try {
+      const { data } = await supabase
+        .from('pedidos')
+        .select('*')
+        .eq('restaurante_id', restauranteId)
+        .eq('mesa', mesa)
+        .in('estado', ACTIVE)
+        .order('created_at', { ascending: true })
+      setOrders((data ?? []).map(mapRow))
+    } catch {}
     setLoading(false)
   }, [restauranteId, mesa])
 
   useEffect(() => {
     fetch()
+
+    // Unique channel name to avoid conflicts
+    const channelName = `table-orders-${restauranteId}-${mesa}-${Date.now()}`
     const channel = supabase
-      .channel(`mesa-${restauranteId}-${mesa}`)
+      .channel(channelName)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'pedidos' }, fetch)
       .subscribe()
-    return () => { supabase.removeChannel(channel) }
-  }, [fetch])
+
+    channelRef.current = channel
+
+    return () => {
+      if (channelRef.current) {
+        supabase.removeChannel(channelRef.current)
+        channelRef.current = null
+      }
+    }
+  }, [restauranteId, mesa]) // eslint-disable-line react-hooks/exhaustive-deps
 
   return { orders, loading }
 }
