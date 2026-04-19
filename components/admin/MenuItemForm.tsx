@@ -3,6 +3,7 @@
 import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
+import EmojiPicker from './EmojiPicker'
 import type { CategoriaItem } from '@/lib/hooks/useCategorias'
 import type { MenuItem } from '@/lib/types'
 
@@ -87,8 +88,7 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
       <div className="flex gap-3">
         <div className="w-20">
           <label className="text-xs text-gray-500 font-medium">Emoji</label>
-          <input value={form.emoji} onChange={(e) => set('emoji', e.target.value)}
-            className={field} maxLength={4} />
+          <EmojiPicker value={form.emoji} onChange={(e) => set('emoji', e)} />
         </div>
         <div className="flex-1">
           <label className="text-xs text-gray-500 font-medium">Nombre *</label>
