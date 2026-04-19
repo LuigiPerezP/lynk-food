@@ -65,10 +65,25 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
         .map(sub => ({ header: sub.nombre, items: filtered.filter(i => i.categoria === sub.nombre) }))
         .filter(g => g.items.length > 0)
     }
-    // todos: group by leaf category
-    return leafCats
-      .map(c => ({ header: c.nombre, items: menu.filter(i => i.categoria === c.nombre) }))
-      .filter(g => g.items.length > 0)
+    // todos: group by section → subcategory, then any uncategorized items
+    const grouped: { header: string; items: typeof menu }[] = []
+    const seen = new Set<string>()
+    for (const seccion of secciones) {
+      const subcats = getSubcats(seccion.id)
+      if (subcats.length > 0) {
+        for (const sub of subcats) {
+          const its = menu.filter(i => i.categoria === sub.nombre)
+          if (its.length > 0) { grouped.push({ header: sub.nombre, items: its }); seen.add(sub.nombre) }
+        }
+      } else {
+        const its = menu.filter(i => i.categoria === seccion.nombre)
+        if (its.length > 0) { grouped.push({ header: seccion.nombre, items: its }); seen.add(seccion.nombre) }
+      }
+    }
+    // Any items whose categoria doesn't match the hierarchy
+    const rest = menu.filter(i => !seen.has(i.categoria))
+    if (rest.length > 0) grouped.push({ header: 'Otros', items: rest })
+    return grouped
   })()
 
   async function handleSubmit() {
