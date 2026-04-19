@@ -61,9 +61,8 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
     if (!file) return
     setUploading(true)
     setUploadError(null)
-    const ext = file.name.split('.').pop()
-    const path = `menu/${Date.now()}.${ext}`
-    const { error } = await supabase.storage.from('menu-images').upload(path, file, { upsert: true })
+    const path = `menu/${Date.now()}.jpg`
+    const { error } = await supabase.storage.from('menu-images').upload(path, file, { upsert: true, contentType: 'image/jpeg' })
     if (error) {
       setUploadError(error.message)
     } else {
@@ -135,7 +134,7 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
               </button>
             )}
           </div>
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+          <input ref={fileRef} type="file" accept="image/jpeg,image/jpg" className="hidden" onChange={handleImageUpload} />
         </div>
       </div>
 
