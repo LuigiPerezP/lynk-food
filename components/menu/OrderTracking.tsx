@@ -117,7 +117,13 @@ export default function OrderTracking({ restauranteId, mesa, onBack }: OrderTrac
             <p className="text-xs text-gray-400 text-center">
               {orders.length} {orders.length === 1 ? 'pedido activo' : 'pedidos activos'} · se actualiza automáticamente
             </p>
+
             {orders.map(order => <OrderCard key={order.id} order={order} />)}
+
+            <button onClick={onBack}
+              className="w-full py-3.5 rounded-2xl font-semibold text-sm border border-gray-200 bg-white text-gray-600 active:scale-[0.98] transition-all">
+              ← Volver al menú
+            </button>
           </>
         )}
       </div>
