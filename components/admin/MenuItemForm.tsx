@@ -145,8 +145,8 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
           <input type="number" min="0" step="0.5"
             value={form.precio === 0 ? '' : form.precio}
             onChange={(e) => set('precio', parseFloat(e.target.value) || 0)}
-            placeholder="0"
-            className={field} required />
+            placeholder="0.00"
+            className={`${field} placeholder-gray-300`} required />
         </div>
         <div className="flex-1">
           <label className="text-xs text-gray-500 font-medium">Sección</label>
