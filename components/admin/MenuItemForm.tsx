@@ -1,6 +1,6 @@
 'use client'
 
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 import type { CategoriaItem } from '@/lib/hooks/useCategorias'
@@ -35,6 +35,17 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
   function set<K extends keyof typeof form>(key: K, value: typeof form[K]) {
     setForm((f) => ({ ...f, [key]: value }))
   }
+
+  // Auto-set categoria when secciones load and categoria is still empty
+  useEffect(() => {
+    if (form.categoria) return
+    const firstSeccion = secciones[0]
+    if (!firstSeccion) return
+    const subcats = getSubcats(firstSeccion.id)
+    const defaultCat = subcats[0]?.nombre ?? firstSeccion.nombre
+    setForm((f) => ({ ...f, categoria: defaultCat }))
+    setSelectedSeccion(firstSeccion.id)
+  }, [secciones]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSeccionChange(seccionId: string) {
     setSelectedSeccion(seccionId)
