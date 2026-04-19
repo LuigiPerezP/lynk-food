@@ -127,6 +127,7 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
               className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors">
               {uploading ? 'Subiendo…' : form.imagen ? 'Cambiar imagen' : 'Subir imagen'}
             </button>
+            <p className="text-xs text-gray-400">Solo formato JPG</p>
             {form.imagen && (
               <button type="button" onClick={() => set('imagen', undefined)}
                 className="px-3 py-1.5 text-xs text-red-500 hover:text-red-700 transition-colors">
