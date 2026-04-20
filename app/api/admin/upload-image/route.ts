@@ -21,7 +21,9 @@ export async function POST(req: NextRequest) {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY
   if (!serviceKey) return NextResponse.json({ error: 'Configuración de servidor incompleta' }, { status: 500 })
 
-  const adminClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey)
+  const adminClient = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey, {
+    auth: { autoRefreshToken: false, persistSession: false },
+  })
 
   const ext = file.name.split('.').pop()?.toLowerCase() ?? 'jpg'
   const path = `menu/${Date.now()}.${ext}`
