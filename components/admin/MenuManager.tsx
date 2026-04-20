@@ -158,7 +158,7 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
           return (
             <div key={seccion.id}>
               <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
-                {seccion.nombre.charAt(0).toUpperCase() + seccion.nombre.slice(1)} ({total})
+                {seccion.nombre.charAt(0).toUpperCase() + seccion.nombre.slice(1)}
               </h3>
               <div className="space-y-4 pl-2">
                 {directItems.length > 0 && (
@@ -169,7 +169,7 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
                   if (items.length === 0) return (
                     <div key={sub.id}>
                       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
-                        └ {sub.nombre.charAt(0).toUpperCase() + sub.nombre.slice(1)} (0)
+                        └ {sub.nombre.charAt(0).toUpperCase() + sub.nombre.slice(1)}
                       </p>
                       <p className="text-xs text-gray-400 pl-4">Sin platos en esta subcategoría</p>
                     </div>
@@ -177,7 +177,7 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
                   return (
                     <div key={sub.id}>
                       <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-1">
-                        └ {sub.nombre.charAt(0).toUpperCase() + sub.nombre.slice(1)} ({items.length})
+                        └ {sub.nombre.charAt(0).toUpperCase() + sub.nombre.slice(1)}
                       </p>
                       <div className="space-y-2">{items.map(renderItem)}</div>
                     </div>
@@ -193,7 +193,7 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
         return (
           <div key={seccion.id}>
             <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">
-              {seccion.nombre.charAt(0).toUpperCase() + seccion.nombre.slice(1)} ({items.length})
+              {seccion.nombre.charAt(0).toUpperCase() + seccion.nombre.slice(1)}
             </h3>
             <div className="space-y-2">
               {items.map(renderItem)}
