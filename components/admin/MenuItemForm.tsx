@@ -2,9 +2,12 @@
 
 import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
+import imageCompression from 'browser-image-compression'
 import EmojiPicker from './EmojiPicker'
 import type { CategoriaItem } from '@/lib/hooks/useCategorias'
 import type { MenuItem } from '@/lib/types'
+
+const MAX_INPUT_MB = 20
 
 interface MenuItemFormProps {
   initial?: Partial<MenuItem>
@@ -22,8 +25,9 @@ const EMPTY: Omit<MenuItem, 'id'> = {
 
 export default function MenuItemForm({ initial, onSave, onCancel, saving, secciones, getSubcats }: MenuItemFormProps) {
   const [form, setForm] = useState<Omit<MenuItem, 'id'>>({ ...EMPTY, ...initial })
-  const [uploading, setUploading] = useState(false)
+  const [uploadStage, setUploadStage] = useState<'idle' | 'compressing' | 'uploading'>('idle')
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const uploading = uploadStage !== 'idle'
   const fileRef = useRef<HTMLInputElement>(null)
 
   // Find which section owns the current categoriaId
@@ -56,10 +60,31 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
-    setUploading(true)
     setUploadError(null)
+
+    if (file.size > MAX_INPUT_MB * 1024 * 1024) {
+      setUploadError(`La imagen es demasiado grande (máx ${MAX_INPUT_MB} MB)`)
+      return
+    }
+
+    setUploadStage('compressing')
+    let compressed: File
+    try {
+      compressed = await imageCompression(file, {
+        maxSizeMB: 1,
+        maxWidthOrHeight: 1600,
+        useWebWorker: true,
+        fileType: 'image/webp',
+      })
+    } catch {
+      setUploadError('Error al comprimir la imagen')
+      setUploadStage('idle')
+      return
+    }
+
+    setUploadStage('uploading')
     const body = new FormData()
-    body.append('file', file)
+    body.append('file', compressed)
     const res = await fetch('/api/admin/upload-image', { method: 'POST', body })
     const json = await res.json()
     if (!res.ok) {
@@ -67,7 +92,7 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
     } else {
       set('imagen', json.url)
     }
-    setUploading(false)
+    setUploadStage('idle')
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -122,7 +147,7 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
           <div className="flex flex-col gap-1">
             <button type="button" onClick={() => fileRef.current?.click()} disabled={uploading}
               className="px-3 py-1.5 text-xs font-semibold rounded-lg border border-gray-200 bg-white hover:bg-gray-50 disabled:opacity-50 transition-colors">
-              {uploading ? 'Subiendo…' : form.imagen ? 'Cambiar imagen' : 'Subir imagen'}
+              {uploadStage === 'compressing' ? 'Optimizando…' : uploadStage === 'uploading' ? 'Subiendo…' : form.imagen ? 'Cambiar imagen' : 'Subir imagen'}
             </button>
             <p className="text-xs text-gray-400">JPG, PNG o WebP · máx 2 MB</p>
             {form.imagen && (

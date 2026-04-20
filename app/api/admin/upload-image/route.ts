@@ -3,7 +3,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin'
 import { verifyToken, COOKIE_NAME } from '@/lib/auth'
 
 const BUCKET = 'menu-images'
-const MAX_BYTES = 2 * 1024 * 1024 // 2 MB
+const MAX_BYTES = 3 * 1024 * 1024 // 3 MB (post-compresión)
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp']
 
 export async function POST(req: NextRequest) {
