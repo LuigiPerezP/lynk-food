@@ -2,7 +2,6 @@
 
 import { useRef, useState, useEffect } from 'react'
 import Image from 'next/image'
-import { supabase } from '@/lib/supabase'
 import EmojiPicker from './EmojiPicker'
 import type { CategoriaItem } from '@/lib/hooks/useCategorias'
 import type { MenuItem } from '@/lib/types'
@@ -59,13 +58,14 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
     if (!file) return
     setUploading(true)
     setUploadError(null)
-    const path = `menu/${Date.now()}.jpg`
-    const { error } = await supabase.storage.from('menu-images').upload(path, file, { upsert: true, contentType: 'image/jpeg' })
-    if (error) {
-      setUploadError(error.message)
+    const body = new FormData()
+    body.append('file', file)
+    const res = await fetch('/api/admin/upload-image', { method: 'POST', body })
+    const json = await res.json()
+    if (!res.ok) {
+      setUploadError(json.error ?? 'Error al subir')
     } else {
-      const { data } = supabase.storage.from('menu-images').getPublicUrl(path)
-      set('imagen', data.publicUrl)
+      set('imagen', json.url)
     }
     setUploading(false)
   }
