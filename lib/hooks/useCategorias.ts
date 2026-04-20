@@ -50,11 +50,23 @@ export function useCategorias(restauranteId: string) {
   }
 
   async function deleteCategoria(id: string) {
-    // Also delete subcategories
     await supabase.from('categorias').delete().eq('parent_id', id)
     await supabase.from('categorias').delete().eq('id', id)
     fetchCategorias()
   }
 
-  return { categorias, secciones, leafCats, getSubcats, loading, addCategoria, deleteCategoria, refetch: fetchCategorias }
+  async function renameCategoria(id: string, nombre: string): Promise<string | null> {
+    const trimmed = nombre.trim().toLowerCase()
+    const prev = categorias.find(c => c.id === id)?.nombre ?? ''
+    // Optimistic update
+    setCategorias(cs => cs.map(c => c.id === id ? { ...c, nombre: trimmed } : c))
+    const { error } = await supabase.from('categorias').update({ nombre: trimmed }).eq('id', id)
+    if (error) {
+      setCategorias(cs => cs.map(c => c.id === id ? { ...c, nombre: prev } : c))
+      return error.message
+    }
+    return null
+  }
+
+  return { categorias, secciones, leafCats, getSubcats, loading, addCategoria, deleteCategoria, renameCategoria, refetch: fetchCategorias }
 }
