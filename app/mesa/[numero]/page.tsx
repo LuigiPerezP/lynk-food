@@ -37,45 +37,50 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
   const [showReview, setShowReview] = useState(false)
   const [showTracking, setShowTracking] = useState(false)
 
-  // Get all leaf cat names belonging to a section (for filtering)
-  function getCatsForSection(seccionNombre: string): string[] {
-    const seccion = secciones.find(s => s.nombre === seccionNombre)
-    if (!seccion) return [seccionNombre]
-    const subcats = getSubcats(seccion.id)
+  // Get all leaf cat IDs belonging to a section (for filtering)
+  function getCatIdsForSection(seccionId: string): string[] {
+    const subcats = getSubcats(seccionId)
     return subcats.length > 0
-      ? [seccionNombre, ...subcats.map(s => s.nombre)]
-      : [seccionNombre]
+      ? [seccionId, ...subcats.map(s => s.id)]
+      : [seccionId]
+  }
+
+  // Resolve a cat ID to its display name
+  function catNombre(id: string): string {
+    return [...secciones, ...secciones.flatMap(s => getSubcats(s.id))]
+      .find(c => c.id === id)?.nombre ?? ''
   }
 
   const filtered = (() => {
     if (selectedSection === 'todos') return menu
-    if (selectedSubcat) return menu.filter(i => i.categoria === selectedSubcat)
-    return menu.filter(i => getCatsForSection(selectedSection).includes(i.categoria))
+    if (selectedSubcat) return menu.filter(i => i.categoriaId === selectedSubcat)
+    return menu.filter(i => getCatIdsForSection(selectedSection).includes(i.categoriaId))
   })()
 
-  // Groups for display: { sectionHeader, subcats: [{header, items}] }
+  // Groups for display: { section: nombre, subcats: [{header: nombre, items}] }
   const grupos = (() => {
     type Subgroup = { header: string; items: typeof menu }
     type Group = { section: string; subcats: Subgroup[] }
 
-    function buildSection(seccionNombre: string, itemPool: typeof menu): Group | null {
-      const seccion = secciones.find(s => s.nombre === seccionNombre)
+    function buildSection(seccionId: string, itemPool: typeof menu): Group | null {
+      const seccion = secciones.find(s => s.id === seccionId)
       if (!seccion) return null
-      const subcats = getSubcats(seccion.id)
+      const subcats = getSubcats(seccionId)
       if (subcats.length > 0) {
         const subs = subcats
-          .map(sub => ({ header: sub.nombre, items: itemPool.filter(i => i.categoria === sub.nombre) }))
+          .map(sub => ({ header: sub.nombre, items: itemPool.filter(i => i.categoriaId === sub.id) }))
           .filter(g => g.items.length > 0)
         if (subs.length === 0) return null
-        return { section: seccionNombre, subcats: subs }
+        return { section: seccion.nombre, subcats: subs }
       }
-      const its = itemPool.filter(i => i.categoria === seccionNombre)
+      const its = itemPool.filter(i => i.categoriaId === seccionId)
       if (its.length === 0) return null
-      return { section: seccionNombre, subcats: [{ header: seccionNombre, items: its }] }
+      return { section: seccion.nombre, subcats: [{ header: seccion.nombre, items: its }] }
     }
 
     if (selectedSubcat) {
-      return [{ section: selectedSubcat, subcats: [{ header: selectedSubcat, items: filtered }] }]
+      const nombre = catNombre(selectedSubcat)
+      return [{ section: nombre, subcats: [{ header: nombre, items: filtered }] }]
     }
 
     if (selectedSection !== 'todos') {
@@ -87,7 +92,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
     const result: Group[] = []
     const seen = new Set<string>()
     for (const seccion of secciones) {
-      const g = buildSection(seccion.nombre, menu)
+      const g = buildSection(seccion.id, menu)
       if (g) {
         result.push(g)
         g.subcats.forEach(s => s.items.forEach(i => seen.add(i.id)))

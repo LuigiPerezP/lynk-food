@@ -17,7 +17,7 @@ export function useAdminMenu(restauranteId: string) {
         nombre: item.nombre,
         descripcion: item.descripcion,
         precio: item.precio,
-        categoria: item.categoria,
+        categoria_id: item.categoriaId,
         disponible: item.disponible,
         emoji: item.emoji,
         imagen: item.imagen ?? null,
@@ -36,7 +36,16 @@ export function useAdminMenu(restauranteId: string) {
     setSaving(true)
     setSaveError(null)
     try {
-      const { error } = await supabase.from('menu_items').update(updates).eq('id', id)
+      const payload: Record<string, unknown> = {}
+      if (updates.nombre !== undefined)      payload.nombre       = updates.nombre
+      if (updates.descripcion !== undefined) payload.descripcion  = updates.descripcion
+      if (updates.precio !== undefined)      payload.precio       = updates.precio
+      if (updates.categoriaId !== undefined) payload.categoria_id = updates.categoriaId
+      if (updates.disponible !== undefined)  payload.disponible   = updates.disponible
+      if (updates.emoji !== undefined)       payload.emoji        = updates.emoji
+      if ('imagen' in updates)               payload.imagen       = updates.imagen ?? null
+
+      const { error } = await supabase.from('menu_items').update(payload).eq('id', id)
       if (error) throw error
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err)

@@ -18,7 +18,7 @@ interface MenuItemFormProps {
 
 const EMPTY: Omit<MenuItem, 'id'> = {
   nombre: '', descripcion: '', precio: 0,
-  categoria: '', disponible: true, emoji: '🍽️',
+  categoriaId: '', disponible: true, emoji: '🍽️',
 }
 
 export default function MenuItemForm({ initial, onSave, onCancel, saving, secciones, getSubcats }: MenuItemFormProps) {
@@ -27,9 +27,9 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
   const [uploadError, setUploadError] = useState<string | null>(null)
   const fileRef = useRef<HTMLInputElement>(null)
 
-  // Find which section owns the current categoria
+  // Find which section owns the current categoriaId
   const currentSection = secciones.find(s =>
-    s.nombre === form.categoria || getSubcats(s.id).some(sub => sub.nombre === form.categoria)
+    s.id === form.categoriaId || getSubcats(s.id).some(sub => sub.id === form.categoriaId)
   )
   const [selectedSeccion, setSelectedSeccion] = useState<string>(currentSection?.id ?? secciones[0]?.id ?? '')
 
@@ -37,24 +37,21 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
     setForm((f) => ({ ...f, [key]: value }))
   }
 
-  // Auto-set categoria when secciones load and categoria is still empty
+  // Auto-set categoriaId when secciones load and categoriaId is still empty
   useEffect(() => {
-    if (form.categoria) return
+    if (form.categoriaId) return
     const firstSeccion = secciones[0]
     if (!firstSeccion) return
     const subcats = getSubcats(firstSeccion.id)
-    const defaultCat = subcats[0]?.nombre ?? firstSeccion.nombre
-    setForm((f) => ({ ...f, categoria: defaultCat }))
+    const defaultId = subcats[0]?.id ?? firstSeccion.id
+    setForm((f) => ({ ...f, categoriaId: defaultId }))
     setSelectedSeccion(firstSeccion.id)
   }, [secciones]) // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleSeccionChange(seccionId: string) {
     setSelectedSeccion(seccionId)
-    const seccion = secciones.find(s => s.id === seccionId)
-    if (!seccion) return
     const subcats = getSubcats(seccionId)
-    // Default categoria to first subcat or the section itself
-    set('categoria', subcats[0]?.nombre ?? seccion.nombre)
+    set('categoriaId', subcats[0]?.id ?? seccionId)
   }
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
@@ -75,7 +72,7 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!form.nombre.trim() || form.precio <= 0 || !form.categoria) return
+    if (!form.nombre.trim() || form.precio <= 0 || !form.categoriaId) return
     await onSave(form)
   }
 
@@ -159,9 +156,9 @@ export default function MenuItemForm({ initial, onSave, onCancel, saving, seccio
         {subcats.length > 0 && (
           <div className="flex-1">
             <label className="text-xs text-gray-500 font-medium">Subcategoría</label>
-            <select value={form.categoria} onChange={(e) => set('categoria', e.target.value)} className={field}>
+            <select value={form.categoriaId} onChange={(e) => set('categoriaId', e.target.value)} className={field}>
               {subcats.map((sub) => (
-                <option key={sub.id} value={sub.nombre}>{sub.nombre.charAt(0).toUpperCase() + sub.nombre.slice(1)}</option>
+                <option key={sub.id} value={sub.id}>{sub.nombre.charAt(0).toUpperCase() + sub.nombre.slice(1)}</option>
               ))}
             </select>
           </div>

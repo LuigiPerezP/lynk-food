@@ -150,8 +150,8 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
 
         if (hasSubcats) {
           const totalItems = subcats.reduce((sum, sub) =>
-            sum + visibleMenu.filter(i => i.categoria === sub.nombre).length, 0)
-          const directItems = visibleMenu.filter(i => i.categoria === seccion.nombre)
+            sum + visibleMenu.filter(i => i.categoriaId === sub.id).length, 0)
+          const directItems = visibleMenu.filter(i => i.categoriaId === seccion.id)
           const total = totalItems + directItems.length
           if (total === 0) return null
 
@@ -165,7 +165,7 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
                   <div className="space-y-2">{directItems.map(renderItem)}</div>
                 )}
                 {subcats.map((sub) => {
-                  const items = visibleMenu.filter(i => i.categoria === sub.nombre)
+                  const items = visibleMenu.filter(i => i.categoriaId === sub.id)
                   if (items.length === 0) return (
                     <div key={sub.id}>
                       <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">
@@ -189,7 +189,7 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
         }
 
         // Section with no subcats
-        const items = visibleMenu.filter(i => i.categoria === seccion.nombre)
+        const items = visibleMenu.filter(i => i.categoriaId === seccion.id)
         return (
           <div key={seccion.id}>
             <h3 className="text-sm font-bold text-gray-700 uppercase tracking-wide mb-2">

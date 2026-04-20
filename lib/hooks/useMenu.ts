@@ -28,7 +28,7 @@ export function useMenu(restauranteId: string, soloDisponibles = true) {
         nombre: row.nombre,
         descripcion: row.descripcion ?? '',
         precio: Number(row.precio),
-        categoria: row.categoria,
+        categoriaId: row.categoria_id as string,
         disponible: row.disponible,
         emoji: row.emoji ?? '🍽️',
         imagen: row.imagen ?? undefined,

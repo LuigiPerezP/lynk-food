@@ -1,5 +1,3 @@
-export type Categoria = string
-
 export type OrderStatus = 'nuevo' | 'preparando' | 'listo' | 'entregado'
 
 export interface MenuItem {
@@ -7,7 +5,8 @@ export interface MenuItem {
   nombre: string
   descripcion: string
   precio: number
-  categoria: Categoria
+  categoriaId: string   // UUID FK → categorias.id
+  categoria?: string    // nombre cargado via join, solo para display
   disponible: boolean
   emoji: string
   imagen?: string

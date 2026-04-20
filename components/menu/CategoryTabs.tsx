@@ -3,8 +3,8 @@ import type { CategoriaItem } from '@/lib/hooks/useCategorias'
 interface CategoryTabsProps {
   secciones: CategoriaItem[]
   getSubcats: (id: string) => CategoriaItem[]
-  selectedSection: string | 'todos'
-  selectedSubcat: string | null
+  selectedSection: string | 'todos'  // ID de sección o 'todos'
+  selectedSubcat: string | null      // ID de subcategoría o null
   onSectionChange: (s: string | 'todos') => void
   onSubcatChange: (s: string | null) => void
 }
@@ -16,11 +16,11 @@ const btn = (active: boolean) => ({
 })
 
 export default function CategoryTabs({ secciones, getSubcats, selectedSection, selectedSubcat, onSectionChange, onSubcatChange }: CategoryTabsProps) {
-  const currentSeccion = secciones.find(s => s.nombre === selectedSection)
+  const currentSeccion = secciones.find(s => s.id === selectedSection)
   const subcats = currentSeccion ? getSubcats(currentSeccion.id) : []
 
-  function handleSectionClick(nombre: string | 'todos') {
-    onSectionChange(nombre)
+  function handleSectionClick(id: string | 'todos') {
+    onSectionChange(id)
     onSubcatChange(null)
   }
 
@@ -39,9 +39,9 @@ export default function CategoryTabs({ secciones, getSubcats, selectedSection, s
           {secciones.map((s) => (
             <button
               key={s.id}
-              onClick={() => handleSectionClick(s.nombre)}
+              onClick={() => handleSectionClick(s.id)}
               className="flex items-center px-3.5 py-2 rounded-xl text-xs font-semibold transition-all active:scale-95 whitespace-nowrap capitalize"
-              style={btn(selectedSection === s.nombre)}
+              style={btn(selectedSection === s.id)}
             >
               {s.nombre}
             </button>
@@ -63,9 +63,9 @@ export default function CategoryTabs({ secciones, getSubcats, selectedSection, s
             {subcats.map((sub) => (
               <button
                 key={sub.id}
-                onClick={() => onSubcatChange(sub.nombre)}
+                onClick={() => onSubcatChange(sub.id)}
                 className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all whitespace-nowrap capitalize"
-                style={btn(selectedSubcat === sub.nombre)}
+                style={btn(selectedSubcat === sub.id)}
               >
                 {sub.nombre}
               </button>
