@@ -93,9 +93,9 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
         )}
 
         <button
-          onClick={() => { toggleVisible(item.id, !item.visible); toggleDisponible(item.id, !item.visible) }}
-          className={`text-xs px-2.5 py-1 rounded-full font-semibold border transition-colors ${item.visible ? 'border-gray-300 text-gray-600 hover:border-red-400 hover:text-red-500 hover:bg-red-50' : 'border-red-400 text-red-500 bg-red-50 hover:bg-red-100'}`}>
-          {item.visible ? 'Ocultar' : 'Mostrar'}
+          onClick={() => toggleDisponible(item.id, !item.disponible)}
+          className={`text-xs px-2.5 py-1 rounded-full font-semibold border transition-colors ${item.disponible ? 'border-gray-300 text-gray-600 hover:border-red-400 hover:text-red-500 hover:bg-red-50' : 'border-red-400 text-red-500 bg-red-50 hover:bg-red-100'}`}>
+          {item.disponible ? 'Ocultar' : 'Mostrar'}
         </button>
 
         <button onClick={() => setEditing(item)}
