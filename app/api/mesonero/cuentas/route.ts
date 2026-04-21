@@ -2,12 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 import type { CuentaItem } from '@/lib/cuentas'
 
-export async function GET() {
-  const { data, error } = await supabaseAdmin
-    .from('mesa_cuentas')
-    .select('*')
-    .eq('estado', 'abierta')
-    .order('creado_en', { ascending: false })
+export async function GET(req: NextRequest) {
+  const all = req.nextUrl.searchParams.get('all') === '1'
+  let query = supabaseAdmin.from('mesa_cuentas').select('*').order('creado_en', { ascending: false })
+  if (!all) query = query.eq('estado', 'abierta')
+  const { data, error } = await query
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })
 
