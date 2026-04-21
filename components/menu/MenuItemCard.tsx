@@ -30,16 +30,16 @@ export default function MenuItemCard({ item, quantity, nota, onAdd, onRemove, on
       <div className="flex items-stretch">
         {/* Image / Emoji panel */}
         <div
-          onClick={() => item.imagen && !agotado && setExpanded(true)}
-          className={`w-20 shrink-0 flex items-center justify-center overflow-hidden ${item.imagen && !agotado ? 'cursor-pointer' : ''}`}
-          style={!item.imagen ? { background: agotado ? '#F3F4F6' : 'linear-gradient(135deg, #EEF2FF, #DBEAFE)' } : undefined}
+          onClick={() => item.imagen && setExpanded(true)}
+          className={`w-20 shrink-0 flex items-center justify-center overflow-hidden ${item.imagen ? 'cursor-pointer' : ''}`}
+          style={!item.imagen ? { background: 'linear-gradient(135deg, #EEF2FF, #DBEAFE)' } : undefined}
         >
           {item.imagen ? (
             <div className="relative w-20 h-full min-h-[72px]">
-              <Image src={item.imagen} alt={item.nombre} fill className="object-cover" style={agotado ? { filter: 'grayscale(1)' } : undefined} />
+              <Image src={item.imagen} alt={item.nombre} fill className="object-cover" />
             </div>
           ) : (
-            <span className="text-3xl" style={agotado ? { filter: 'grayscale(1)' } : undefined}>{item.emoji}</span>
+            <span className="text-3xl">{item.emoji}</span>
           )}
         </div>
 
