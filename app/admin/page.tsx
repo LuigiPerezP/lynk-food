@@ -12,21 +12,24 @@ const TableManager = dynamic(() => import('@/components/admin/TableManager'), { 
 const DailyReport = dynamic(() => import('@/components/admin/DailyReport'), { ssr: false })
 const CajaReport = dynamic(() => import('@/components/admin/CajaReport'), { ssr: false })
 const PinManager = dynamic(() => import('@/components/admin/PinManager'), { ssr: false })
+const Estadisticas = dynamic(() => import('@/components/admin/Estadisticas'), { ssr: false })
 
 const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'lynkfood'
 
-type Tab = 'menu' | 'categorias' | 'mesas' | 'reportes'
+type Tab = 'menu' | 'categorias' | 'mesas' | 'reportes' | 'estadisticas'
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
   { id: 'menu', label: 'Menú', emoji: '📋' },
   { id: 'categorias', label: 'Categorías', emoji: '🗂️' },
   { id: 'mesas', label: 'Mesas', emoji: '🪑' },
   { id: 'reportes', label: 'Reportes', emoji: '📊' },
+  { id: 'estadisticas', label: 'Stats', emoji: '📈' },
 ]
 
 export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('menu')
   const [baseUrl, setBaseUrl] = useState('')
+  const [reportKey, setReportKey] = useState(0)
   const { secciones, getSubcats, addCategoria, deleteCategoria, renameCategoria } = useCategorias(RESTAURANTE_ID)
 
   useEffect(() => {
@@ -53,12 +56,12 @@ export default function AdminPage() {
       </div>
 
       {/* Tabs */}
-      <div className="flex bg-white border-b border-gray-100 px-4 shadow-sm">
+      <div className="flex bg-white border-b border-gray-100 px-2 shadow-sm overflow-x-auto">
         {TABS.map((t) => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className="flex items-center gap-1.5 px-5 py-3.5 text-sm font-semibold border-b-2 transition-colors"
+            className="flex items-center gap-1.5 px-4 py-3.5 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap"
             style={tab === t.id ? {
               borderColor: '#1A6BFF',
               color: '#0D3BB5',
@@ -86,10 +89,11 @@ export default function AdminPage() {
         )}
         {tab === 'reportes' && (
           <div className="space-y-8">
-            <CajaReport />
-            <DailyReport restauranteId={RESTAURANTE_ID} />
+            <CajaReport onClosed={() => setReportKey((k) => k + 1)} />
+            <DailyReport key={reportKey} restauranteId={RESTAURANTE_ID} />
           </div>
         )}
+        {tab === 'estadisticas' && <Estadisticas key={reportKey} />}
       </div>
     </div>
   )

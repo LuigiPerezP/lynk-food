@@ -11,7 +11,7 @@ function formatBs(n: number) {
   return n.toLocaleString('es-VE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 }
 
-export default function CajaReport() {
+export default function CajaReport({ onClosed }: { onClosed?: () => void }) {
   const [cuentas, setCuentas] = useState<MesaCuenta[]>([])
   const [loading, setLoading] = useState(true)
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -34,6 +34,7 @@ export default function CajaReport() {
     if (res.ok) {
       setCuentas([])
       setConfirm(false)
+      onClosed?.()
     }
     setClosing(false)
   }
