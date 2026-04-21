@@ -91,10 +91,10 @@ export default function Estadisticas() {
             </div>
           </div>
 
-          {/* Vista semanal — resumen por día */}
-          {stats.type === 'semana' && stats.dias && (
+          {/* Vista diaria (semana y mes) */}
+          {stats.dias && (
             <div>
-              <h3 className="text-sm font-semibold text-gray-600 mb-2">Facturación diaria</h3>
+              <h3 className="text-sm font-semibold text-gray-600 mb-2">Facturación por día</h3>
               <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
                 {stats.dias.map((dia) => (
                   <div key={dia.fecha} className="px-4 py-3">
@@ -123,16 +123,14 @@ export default function Estadisticas() {
             </div>
           )}
 
-          {/* Top productos (hoy y mes) */}
-          {stats.type !== 'semana' && stats.topItems && (
+          {/* Top 10 productos — todos los períodos */}
+          {stats.topItems && (
             <div>
               <h3 className="text-sm font-semibold text-gray-600 mb-2">
-                {period === 'hoy' ? 'Lo más pedido en el turno' : 'Productos más vendidos'}
+                {period === 'hoy' ? 'Lo más pedido en el turno' : 'Top 10 productos'}
               </h3>
               {stats.topItems.length === 0 ? (
-                <p className="text-sm text-gray-400 text-center py-6 bg-white rounded-xl border border-gray-200">
-                  Sin datos
-                </p>
+                <p className="text-sm text-gray-400 text-center py-6 bg-white rounded-xl border border-gray-200">Sin datos</p>
               ) : (
                 <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
                   {stats.topItems.map((item, i) => {
