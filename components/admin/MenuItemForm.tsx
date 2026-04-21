@@ -20,7 +20,7 @@ interface MenuItemFormProps {
 
 const EMPTY: Omit<MenuItem, 'id'> = {
   nombre: '', descripcion: '', precio: 0,
-  categoriaId: '', disponible: true, emoji: '🍽️',
+  categoriaId: '', disponible: true, visible: true, emoji: '🍽️',
 }
 
 export default function MenuItemForm({ initial, onSave, onCancel, saving, secciones, getSubcats }: MenuItemFormProps) {
