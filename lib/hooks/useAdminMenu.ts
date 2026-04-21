@@ -19,6 +19,7 @@ export function useAdminMenu(restauranteId: string) {
         precio: item.precio,
         categoria_id: item.categoriaId,
         disponible: item.disponible,
+        visible: item.visible ?? true,
         emoji: item.emoji,
         imagen: item.imagen ?? null,
       })
@@ -42,6 +43,7 @@ export function useAdminMenu(restauranteId: string) {
       if (updates.precio !== undefined)      payload.precio       = updates.precio
       if (updates.categoriaId !== undefined) payload.categoria_id = updates.categoriaId
       if (updates.disponible !== undefined)  payload.disponible   = updates.disponible
+      if (updates.visible !== undefined)    payload.visible      = updates.visible
       if (updates.emoji !== undefined)       payload.emoji        = updates.emoji
       if ('imagen' in updates)               payload.imagen       = updates.imagen ?? null
 
@@ -60,9 +62,13 @@ export function useAdminMenu(restauranteId: string) {
     await supabase.from('menu_items').update({ disponible }).eq('id', id)
   }
 
+  async function toggleVisible(id: string, visible: boolean) {
+    await supabase.from('menu_items').update({ visible }).eq('id', id)
+  }
+
   async function deleteItem(id: string) {
     await supabase.from('menu_items').delete().eq('id', id)
   }
 
-  return { addItem, updateItem, toggleDisponible, deleteItem, saving, saveError }
+  return { addItem, updateItem, toggleDisponible, toggleVisible, deleteItem, saving, saveError }
 }

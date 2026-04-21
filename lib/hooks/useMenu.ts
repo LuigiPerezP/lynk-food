@@ -18,7 +18,9 @@ export function useMenu(restauranteId: string, soloDisponibles = true) {
         .select('*')
         .eq('restaurante_id', restauranteId)
 
-      if (soloDisponibles) query = query.eq('disponible', true)
+      // Client view: show visible items (including agotados for display)
+      // Admin view: show all items
+      if (soloDisponibles) query = query.eq('visible', true)
 
       const { data, error: err } = await query
       if (err) throw err
@@ -29,7 +31,8 @@ export function useMenu(restauranteId: string, soloDisponibles = true) {
         descripcion: row.descripcion ?? '',
         precio: Number(row.precio),
         categoriaId: row.categoria_id as string,
-        disponible: row.disponible,
+        disponible: row.disponible as boolean,
+        visible: row.visible !== false,
         emoji: row.emoji ?? '🍽️',
         imagen: row.imagen ?? undefined,
       })))
@@ -41,6 +44,27 @@ export function useMenu(restauranteId: string, soloDisponibles = true) {
   }, [restauranteId, soloDisponibles])
 
   useEffect(() => { fetchMenu() }, [fetchMenu])
+
+  // Realtime: reflect disponible/visible changes instantly
+  useEffect(() => {
+    const channel = supabase
+      .channel(`menu_items:${restauranteId}`)
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'menu_items',
+        filter: `restaurante_id=eq.${restauranteId}`,
+      }, (payload) => {
+        const row = payload.new as Record<string, unknown>
+        setMenu((prev) => prev.map((item) =>
+          item.id === row.id
+            ? { ...item, disponible: row.disponible as boolean, visible: row.visible !== false }
+            : item
+        ).filter((item) => !soloDisponibles || item.visible))
+      })
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [restauranteId, soloDisponibles])
 
   return { menu, loading, error, retry: fetchMenu }
 }

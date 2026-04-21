@@ -22,42 +22,47 @@ function formatBs(usd: number, tasa: number): string {
 export default function MenuItemCard({ item, quantity, nota, onAdd, onRemove, onNota }: MenuItemCardProps) {
   const { tasa } = useTasaBCV()
   const [expanded, setExpanded] = useState(false)
+  const agotado = !item.disponible
 
   return (
     <>
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-shadow hover:shadow-md">
+      <div className={`bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden transition-shadow hover:shadow-md ${agotado ? 'opacity-60' : ''}`}>
       <div className="flex items-stretch">
         {/* Image / Emoji panel */}
         <div
-          onClick={() => item.imagen && setExpanded(true)}
-          className={`w-20 shrink-0 flex items-center justify-center overflow-hidden ${item.imagen ? 'cursor-pointer' : ''}`}
-          style={!item.imagen ? { background: 'linear-gradient(135deg, #EEF2FF, #DBEAFE)' } : undefined}
+          onClick={() => item.imagen && !agotado && setExpanded(true)}
+          className={`w-20 shrink-0 flex items-center justify-center overflow-hidden ${item.imagen && !agotado ? 'cursor-pointer' : ''}`}
+          style={!item.imagen ? { background: agotado ? '#F3F4F6' : 'linear-gradient(135deg, #EEF2FF, #DBEAFE)' } : undefined}
         >
           {item.imagen ? (
             <div className="relative w-20 h-full min-h-[72px]">
-              <Image src={item.imagen} alt={item.nombre} fill className="object-cover" />
-              <div className="absolute inset-0 flex items-end justify-end p-1">
-                <span className="text-xs bg-black/40 text-white rounded-full px-1.5 py-0.5 leading-none">🔍</span>
-              </div>
+              <Image src={item.imagen} alt={item.nombre} fill className="object-cover" style={agotado ? { filter: 'grayscale(1)' } : undefined} />
             </div>
           ) : (
-            <span className="text-3xl">{item.emoji}</span>
+            <span className="text-3xl" style={agotado ? { filter: 'grayscale(1)' } : undefined}>{item.emoji}</span>
           )}
         </div>
 
         {/* Content */}
         <div className="flex-1 min-w-0 p-3.5 flex items-center gap-2">
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-gray-900 text-sm leading-snug">{item.nombre}</p>
+            <div className="flex items-center gap-2">
+              <p className={`font-semibold text-gray-900 text-sm leading-snug ${agotado ? 'line-through text-gray-400' : ''}`}>{item.nombre}</p>
+              {agotado && (
+                <span className="text-xs font-bold px-1.5 py-0.5 rounded-full shrink-0" style={{ background: '#FEE2E2', color: '#DC2626' }}>
+                  Agotado
+                </span>
+              )}
+            </div>
             {item.descripcion && (
               <p className="text-xs text-gray-400 mt-0.5 line-clamp-1">{item.descripcion}</p>
             )}
             <div className="flex items-center gap-1.5 mt-1.5 flex-wrap">
-              <span className="px-2 py-0.5 rounded-full text-xs font-bold"
-                style={{ background: '#EEF2FF', color: '#0D3BB5' }}>
+              <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${agotado ? 'line-through' : ''}`}
+                style={{ background: agotado ? '#F3F4F6' : '#EEF2FF', color: agotado ? '#9CA3AF' : '#0D3BB5' }}>
                 ${item.precio.toFixed(2)}
               </span>
-              {tasa && (
+              {tasa && !agotado && (
                 <span className="text-xs text-gray-400 font-medium">
                   {formatBs(item.precio, tasa)}
                 </span>
@@ -67,7 +72,12 @@ export default function MenuItemCard({ item, quantity, nota, onAdd, onRemove, on
 
           {/* Counter */}
           <div className="flex items-center gap-2 shrink-0">
-            {quantity > 0 ? (
+            {agotado ? (
+              <div className="w-8 h-8 rounded-full flex items-center justify-center cursor-not-allowed"
+                style={{ background: '#F3F4F6' }}>
+                <span className="text-gray-300 text-lg font-bold">+</span>
+              </div>
+            ) : quantity > 0 ? (
               <>
                 <button
                   onClick={onRemove}

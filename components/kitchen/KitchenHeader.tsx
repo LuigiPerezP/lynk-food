@@ -7,9 +7,10 @@ import LogoutButton from '@/components/shared/LogoutButton'
 interface KitchenHeaderProps {
   isBoard: boolean
   onToggleView: () => void
+  onAgotados?: () => void
 }
 
-export default function KitchenHeader({ isBoard, onToggleView }: KitchenHeaderProps) {
+export default function KitchenHeader({ isBoard, onToggleView, onAgotados }: KitchenHeaderProps) {
   const [time, setTime] = useState('')
 
   useEffect(() => {
@@ -37,6 +38,15 @@ export default function KitchenHeader({ isBoard, onToggleView }: KitchenHeaderPr
 
       <div className="flex items-center gap-2">
         <span className="font-mono text-sm tabular-nums" style={{ color: '#93C5FD' }}>{time}</span>
+        {onAgotados && (
+          <button
+            onClick={onAgotados}
+            className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-colors"
+            style={{ background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.25)' }}
+          >
+            🚫 Agotados
+          </button>
+        )}
         <button
           onClick={onToggleView}
           className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-colors"

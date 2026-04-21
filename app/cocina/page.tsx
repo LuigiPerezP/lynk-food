@@ -11,6 +11,7 @@ import StatsBar from '@/components/kitchen/StatsBar'
 import KanbanColumn from '@/components/kitchen/KanbanColumn'
 import OrderCard from '@/components/kitchen/OrderCard'
 import NotificationBanner from '@/components/kitchen/NotificationBanner'
+import AgotadosModal from '@/components/shared/AgotadosModal'
 
 const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'lynkfood'
 
@@ -21,6 +22,7 @@ export default function CocinaPage() {
   const [isBoard, setIsBoard] = useState(true)
   const [entregadosHoy, setEntregadosHoy] = useState(0)
   const [notifKey, setNotifKey] = useState('')
+  const [showAgotados, setShowAgotados] = useState(false)
 
   const prevIdsRef = useRef<Set<string>>(new Set())
 
@@ -61,7 +63,7 @@ export default function CocinaPage() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col">
-      <KitchenHeader isBoard={isBoard} onToggleView={() => setIsBoard((v) => !v)} />
+      <KitchenHeader isBoard={isBoard} onToggleView={() => setIsBoard((v) => !v)} onAgotados={() => setShowAgotados(true)} />
       <StatsBar
         nuevos={nuevos.length}
         preparando={preparando.length}
@@ -122,6 +124,7 @@ export default function CocinaPage() {
           </div>
         </div>
       )}
+      {showAgotados && <AgotadosModal onClose={() => setShowAgotados(false)} />}
     </div>
   )
 }

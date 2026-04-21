@@ -19,7 +19,7 @@ interface MenuManagerProps {
 
 export default function MenuManager({ restauranteId }: MenuManagerProps) {
   const { menu, retry: reloadMenu } = useMenu(restauranteId, false)
-  const { addItem, updateItem, toggleDisponible, deleteItem, saving, saveError } = useAdminMenu(restauranteId)
+  const { addItem, updateItem, toggleDisponible, toggleVisible, deleteItem, saving, saveError } = useAdminMenu(restauranteId)
   const { secciones, leafCats, getSubcats } = useCategorias(restauranteId)
   const { tasa } = useTasaBCV()
 
@@ -92,10 +92,20 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
           </button>
         )}
 
-        <button onClick={() => toggleDisponible(item.id, !item.disponible)}
-          className={`text-xs px-2 py-1 rounded-full font-medium transition-colors ${item.disponible ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'}`}>
-          {item.disponible ? 'Activo' : 'Oculto'}
-        </button>
+        <div className="flex gap-1">
+          <button
+            onClick={() => toggleVisible(item.id, !item.visible)}
+            title={item.visible ? 'Visible en menú' : 'Oculto del menú'}
+            className={`text-xs px-2 py-1 rounded-full font-medium transition-colors ${item.visible ? 'bg-blue-100 text-blue-700 hover:bg-blue-200' : 'bg-gray-100 text-gray-400 hover:bg-gray-200'}`}>
+            {item.visible ? '👁' : '🚫'}
+          </button>
+          <button
+            onClick={() => toggleDisponible(item.id, !item.disponible)}
+            title={item.disponible ? 'En stock' : 'Agotado'}
+            className={`text-xs px-2 py-1 rounded-full font-medium transition-colors ${item.disponible ? 'bg-green-100 text-green-700 hover:bg-green-200' : 'bg-red-100 text-red-500 hover:bg-red-200'}`}>
+            {item.disponible ? '✓' : '✕'}
+          </button>
+        </div>
 
         <button onClick={() => setEditing(item)}
           className="text-gray-400 hover:text-gray-700 text-sm transition-colors" title="Editar">

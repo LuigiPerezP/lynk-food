@@ -7,7 +7,8 @@ export interface MenuItem {
   precio: number
   categoriaId: string   // UUID FK → categorias.id
   categoria?: string    // nombre cargado via join, solo para display
-  disponible: boolean
+  disponible: boolean   // hay stock hoy (se puede ordenar)
+  visible: boolean      // aparece en el menú del cliente
   emoji: string
   imagen?: string
 }

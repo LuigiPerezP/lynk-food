@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import type { MesaCuenta } from '@/lib/cuentas'
 import { useTasaBCV } from '@/lib/hooks/useTasaBCV'
+import AgotadosModal from '@/components/shared/AgotadosModal'
 
 function formatUSD(n: number) {
   return n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -19,6 +20,7 @@ export default function MesoneroPage() {
   const [cuentas, setCuentas] = useState<MesaCuenta[]>([])
   const { tasa } = useTasaBCV()
   const [loading, setLoading] = useState(true)
+  const [showAgotados, setShowAgotados] = useState(false)
 
   const load = useCallback(async () => {
     const res = await fetch('/api/mesonero/cuentas')
@@ -52,6 +54,13 @@ export default function MesoneroPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowAgotados(true)}
+            className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+            style={{ background: 'rgba(239,68,68,0.15)', color: '#FCA5A5', border: '1px solid rgba(239,68,68,0.25)' }}
+          >
+            🚫 Agotados
+          </button>
           <button
             onClick={load}
             className="p-2 rounded-xl transition-colors"
@@ -109,6 +118,8 @@ export default function MesoneroPage() {
           </div>
         )}
       </div>
+
+      {showAgotados && <AgotadosModal onClose={() => setShowAgotados(false)} />}
     </div>
   )
 }
