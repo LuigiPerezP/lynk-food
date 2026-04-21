@@ -32,13 +32,17 @@ export function useSubmitOrder() {
         .single()
       if (err) throw err
 
-      // Register items in mesonero account (non-blocking)
+      // Register items in mesonero account
+      console.log('[cuentas] sending', { mesa: String(params.mesa), items: params.items })
       fetch('/api/mesonero/cuentas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mesa: String(params.mesa), items: params.items }),
-      }).then((r) => { if (!r.ok) r.json().then((e) => console.error('[cuentas]', e)) })
-        .catch((e) => console.error('[cuentas]', e))
+      }).then(async (r) => {
+        const json = await r.json()
+        if (!r.ok) console.error('[cuentas] error', json)
+        else console.log('[cuentas] ok', json)
+      }).catch((e) => console.error('[cuentas] fetch failed', e))
 
       return data.id
     } catch (err) {
