@@ -10,16 +10,18 @@ const MenuManager = dynamic(() => import('@/components/admin/MenuManager'), { ss
 const CategoryManager = dynamic(() => import('@/components/admin/CategoryManager'), { ssr: false })
 const TableManager = dynamic(() => import('@/components/admin/TableManager'), { ssr: false })
 const DailyReport = dynamic(() => import('@/components/admin/DailyReport'), { ssr: false })
+const PinManager = dynamic(() => import('@/components/admin/PinManager'), { ssr: false })
 
 const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'lynkfood'
 
-type Tab = 'menu' | 'categorias' | 'mesas' | 'reportes'
+type Tab = 'menu' | 'categorias' | 'mesas' | 'reportes' | 'seguridad'
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
   { id: 'menu', label: 'Menú', emoji: '📋' },
   { id: 'categorias', label: 'Categorías', emoji: '🗂️' },
   { id: 'mesas', label: 'Mesas', emoji: '🪑' },
   { id: 'reportes', label: 'Reportes', emoji: '📊' },
+  { id: 'seguridad', label: 'Seguridad', emoji: '🔒' },
 ]
 
 export default function AdminPage() {
@@ -78,6 +80,7 @@ export default function AdminPage() {
         )}
         {tab === 'mesas' && <TableManager baseUrl={baseUrl} />}
         {tab === 'reportes' && <DailyReport restauranteId={RESTAURANTE_ID} />}
+        {tab === 'seguridad' && <PinManager restauranteId={RESTAURANTE_ID} />}
       </div>
     </div>
   )

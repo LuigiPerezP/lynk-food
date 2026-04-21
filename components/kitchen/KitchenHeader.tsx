@@ -49,6 +49,8 @@ export default function KitchenHeader({ isBoard, onToggleView }: KitchenHeaderPr
           )}
         </button>
         <LogoutButton
+          endpoint="/api/cocina/logout"
+          redirectTo="/cocina/login"
           className="text-xs px-3 py-1.5 rounded-lg transition-colors"
           style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.12)' }}
         />
