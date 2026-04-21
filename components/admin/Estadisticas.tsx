@@ -5,10 +5,14 @@ import { useTasaBCV } from '@/lib/hooks/useTasaBCV'
 
 type Period = 'hoy' | 'semana' | 'mes'
 
+interface DiaResumen { fecha: string; total: number; pedidos: number }
+
 interface Stats {
+  type: 'caja' | 'semana' | 'mes'
   totalPedidos: number
   totalUSD: number
-  topItems: { nombre: string; emoji: string; cantidad: number; total: number }[]
+  topItems?: { nombre: string; emoji: string; cantidad: number; total: number }[]
+  dias?: DiaResumen[]
 }
 
 const PERIODS: { id: Period; label: string }[] = [
@@ -23,6 +27,10 @@ function formatUSD(n: number) {
 function formatBs(n: number) {
   return n.toLocaleString('es-VE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 }
+function fmtFecha(iso: string) {
+  const [y, m, d] = iso.split('-')
+  return `${d}/${m}/${y}`
+}
 
 export default function Estadisticas() {
   const [period, setPeriod] = useState<Period>('hoy')
@@ -32,6 +40,7 @@ export default function Estadisticas() {
 
   useEffect(() => {
     setLoading(true)
+    setStats(null)
     fetch(`/api/admin/estadisticas?period=${period}`)
       .then(async (r) => {
         const data = await r.json()
@@ -40,6 +49,8 @@ export default function Estadisticas() {
       })
       .catch(() => setLoading(false))
   }, [period])
+
+  const maxDia = stats?.dias ? Math.max(...stats.dias.map((d) => d.total), 1) : 1
 
   return (
     <div className="space-y-5">
@@ -71,7 +82,7 @@ export default function Estadisticas() {
           <div className="grid grid-cols-2 gap-3">
             <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
               <p className="text-3xl font-black text-gray-900">{stats.totalPedidos}</p>
-              <p className="text-xs text-gray-500 mt-1">Pedidos</p>
+              <p className="text-xs text-gray-500 mt-1">{period === 'hoy' ? 'Cuentas' : 'Pedidos'}</p>
             </div>
             <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
               <p className="text-xl font-black" style={{ color: '#1A6BFF' }}>${formatUSD(stats.totalUSD)}</p>
@@ -80,42 +91,74 @@ export default function Estadisticas() {
             </div>
           </div>
 
-          {/* Top productos */}
-          <div>
-            <h3 className="text-sm font-semibold text-gray-600 mb-2">Productos más vendidos</h3>
-            {stats.topItems.length === 0 ? (
-              <p className="text-sm text-gray-400 text-center py-6 bg-white rounded-xl border border-gray-200">
-                Sin datos en este período
-              </p>
-            ) : (
+          {/* Vista semanal — resumen por día */}
+          {stats.type === 'semana' && stats.dias && (
+            <div>
+              <h3 className="text-sm font-semibold text-gray-600 mb-2">Facturación diaria</h3>
               <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
-                {stats.topItems.map((item, i) => {
-                  const maxCantidad = stats.topItems[0].cantidad
-                  const pct = Math.round((item.cantidad / maxCantidad) * 100)
-                  return (
-                    <div key={item.nombre} className="px-4 py-3">
-                      <div className="flex items-center gap-3 mb-1.5">
-                        <span className="text-gray-400 text-xs font-bold w-4 shrink-0">{i + 1}</span>
-                        <span className="text-xl shrink-0">{item.emoji}</span>
-                        <span className="flex-1 text-sm text-gray-800 font-medium">{item.nombre}</span>
-                        <span className="text-sm font-bold text-gray-700 shrink-0">{item.cantidad}×</span>
-                        <div className="text-right shrink-0">
-                          <p className="text-sm font-bold" style={{ color: '#1A6BFF' }}>${formatUSD(item.total)}</p>
-                          {tasa && <p className="text-xs text-gray-400">Bs {formatBs(item.total * tasa)}</p>}
-                        </div>
+                {stats.dias.map((dia) => (
+                  <div key={dia.fecha} className="px-4 py-3">
+                    <div className="flex items-center justify-between mb-1.5">
+                      <div>
+                        <span className="text-sm font-semibold text-gray-800">{fmtFecha(dia.fecha)}</span>
+                        <span className="text-xs text-gray-400 ml-2">{dia.pedidos} pedidos</span>
                       </div>
-                      <div className="ml-7 h-1.5 bg-gray-100 rounded-full overflow-hidden">
-                        <div
-                          className="h-full rounded-full transition-all"
-                          style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #0D3BB5, #1A6BFF)' }}
-                        />
+                      <div className="text-right">
+                        <p className="text-sm font-bold" style={{ color: '#1A6BFF' }}>${formatUSD(dia.total)}</p>
+                        {tasa && <p className="text-xs text-gray-400">Bs {formatBs(dia.total * tasa)}</p>}
                       </div>
                     </div>
-                  )
-                })}
+                    <div className="h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all"
+                        style={{
+                          width: `${Math.round((dia.total / maxDia) * 100)}%`,
+                          background: dia.total > 0 ? 'linear-gradient(90deg, #0D3BB5, #1A6BFF)' : 'transparent',
+                        }}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {/* Top productos (hoy y mes) */}
+          {stats.type !== 'semana' && stats.topItems && (
+            <div>
+              <h3 className="text-sm font-semibold text-gray-600 mb-2">
+                {period === 'hoy' ? 'Lo más pedido en el turno' : 'Productos más vendidos'}
+              </h3>
+              {stats.topItems.length === 0 ? (
+                <p className="text-sm text-gray-400 text-center py-6 bg-white rounded-xl border border-gray-200">
+                  Sin datos
+                </p>
+              ) : (
+                <div className="bg-white rounded-xl border border-gray-200 divide-y divide-gray-100">
+                  {stats.topItems.map((item, i) => {
+                    const pct = Math.round((item.cantidad / stats.topItems![0].cantidad) * 100)
+                    return (
+                      <div key={item.nombre} className="px-4 py-3">
+                        <div className="flex items-center gap-3 mb-1.5">
+                          <span className="text-gray-400 text-xs font-bold w-4 shrink-0">{i + 1}</span>
+                          <span className="text-xl shrink-0">{item.emoji}</span>
+                          <span className="flex-1 text-sm text-gray-800 font-medium">{item.nombre}</span>
+                          <span className="text-sm font-bold text-gray-700 shrink-0">{item.cantidad}×</span>
+                          <div className="text-right shrink-0">
+                            <p className="text-sm font-bold" style={{ color: '#1A6BFF' }}>${formatUSD(item.total)}</p>
+                            {tasa && <p className="text-xs text-gray-400">Bs {formatBs(item.total * tasa)}</p>}
+                          </div>
+                        </div>
+                        <div className="ml-7 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+                          <div className="h-full rounded-full" style={{ width: `${pct}%`, background: 'linear-gradient(90deg, #0D3BB5, #1A6BFF)' }} />
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </>
       )}
     </div>
