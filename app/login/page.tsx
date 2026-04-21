@@ -3,6 +3,7 @@
 import { useRouter, useSearchParams } from 'next/navigation'
 import { Suspense, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 function LoginForm() {
   const router = useRouter()
@@ -148,6 +149,16 @@ function LoginForm() {
             Sesión activa por 12 horas
           </p>
         </div>
+
+        <Link
+          href="/mesonero/login"
+          className="flex flex-col items-center gap-1.5 rounded-2xl p-4 mt-4 transition-all active:scale-95"
+          style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
+        >
+          <span className="text-2xl">🍽️</span>
+          <span className="text-white text-sm font-semibold">Mesonero</span>
+          <span className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>Acceso con PIN</span>
+        </Link>
       </div>
     </div>
   )

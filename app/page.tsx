@@ -40,12 +40,18 @@ export default function Home() {
             <p className="text-white font-semibold text-sm">Escanea el código QR de tu mesa para ver el menú y ordenar</p>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-3 gap-3">
             <Link href="/login?role=cocina"
               className="flex flex-col items-center gap-2 rounded-2xl p-4 transition-all active:scale-95"
               style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
               <span className="text-2xl">🍳</span>
               <span className="text-white text-xs font-semibold">Cocina</span>
+            </Link>
+            <Link href="/mesonero/login"
+              className="flex flex-col items-center gap-2 rounded-2xl p-4 transition-all active:scale-95"
+              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
+              <span className="text-2xl">🍽️</span>
+              <span className="text-white text-xs font-semibold">Mesonero</span>
             </Link>
             <Link href="/login?role=admin"
               className="flex flex-col items-center gap-2 rounded-2xl p-4 transition-all active:scale-95"

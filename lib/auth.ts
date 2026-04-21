@@ -8,6 +8,9 @@ export const COOKIE_MAX_AGE = 60 * 60 * 12 // 12 horas
 export const COCINA_COOKIE_NAME = 'lynk_cocina'
 export const COCINA_COOKIE_MAX_AGE = 60 * 60 * 12
 
+export const MESONERO_COOKIE_NAME = 'lynk_mesonero'
+export const MESONERO_COOKIE_MAX_AGE = 60 * 60 * 12
+
 async function hmac(message: string, secret: string): Promise<string> {
   const enc = new TextEncoder()
   const key = await crypto.subtle.importKey(
@@ -32,6 +35,17 @@ export async function createCocinaToken(pin: string): Promise<string> {
 export async function verifyCocinaToken(token: string | undefined, pin: string): Promise<boolean> {
   if (!token) return false
   const expected = await createCocinaToken(pin)
+  return expected === token
+}
+
+export async function createMesoneroToken(pin: string): Promise<string> {
+  const signature = await hmac('mesonero', pin)
+  return `mesonero.${signature}`
+}
+
+export async function verifyMesoneroToken(token: string | undefined, pin: string): Promise<boolean> {
+  if (!token) return false
+  const expected = await createMesoneroToken(pin)
   return expected === token
 }
 

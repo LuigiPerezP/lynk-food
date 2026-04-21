@@ -10,6 +10,7 @@ const MenuManager = dynamic(() => import('@/components/admin/MenuManager'), { ss
 const CategoryManager = dynamic(() => import('@/components/admin/CategoryManager'), { ssr: false })
 const TableManager = dynamic(() => import('@/components/admin/TableManager'), { ssr: false })
 const DailyReport = dynamic(() => import('@/components/admin/DailyReport'), { ssr: false })
+const PinManager = dynamic(() => import('@/components/admin/PinManager'), { ssr: false })
 
 const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'lynkfood'
 
@@ -76,7 +77,12 @@ export default function AdminPage() {
         {tab === 'categorias' && (
           <CategoryManager secciones={secciones} getSubcats={getSubcats} onAdd={addCategoria} onDelete={deleteCategoria} onRename={renameCategoria} />
         )}
-        {tab === 'mesas' && <TableManager baseUrl={baseUrl} />}
+        {tab === 'mesas' && (
+          <div className="space-y-6">
+            <TableManager baseUrl={baseUrl} />
+            <PinManager />
+          </div>
+        )}
         {tab === 'reportes' && <DailyReport restauranteId={RESTAURANTE_ID} />}
       </div>
     </div>

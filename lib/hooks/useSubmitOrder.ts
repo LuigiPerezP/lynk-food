@@ -31,6 +31,14 @@ export function useSubmitOrder() {
         .select('id')
         .single()
       if (err) throw err
+
+      // Register items in mesonero account (non-blocking)
+      fetch('/api/mesonero/cuentas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mesa: String(params.mesa), items: params.items }),
+      }).catch(() => {})
+
       return data.id
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Error al enviar el pedido')
