@@ -66,6 +66,43 @@ export default function CajaReport() {
         </div>
       </div>
 
+      {/* Cerrar Caja */}
+      <div>
+        {!confirm ? (
+          <button
+            onClick={() => setConfirm(true)}
+            disabled={cuentas.length === 0}
+            className="w-full py-3.5 rounded-xl font-semibold text-sm border-2 transition-all disabled:opacity-30"
+            style={{ borderColor: '#EF4444', color: '#EF4444' }}
+          >
+            Cerrar Caja
+          </button>
+        ) : (
+          <div className="rounded-xl border-2 border-red-200 p-4 space-y-3">
+            <p className="text-sm font-semibold text-gray-800 text-center">¿Confirmar cierre de caja?</p>
+            <p className="text-xs text-gray-500 text-center">
+              Se borrarán las {cuentas.length} cuentas del turno. Esta acción no se puede deshacer.
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setConfirm(false)}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 text-gray-600"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleCerrarCaja}
+                disabled={closing}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
+                style={{ background: '#EF4444' }}
+              >
+                {closing ? 'Cerrando…' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Lista de cuentas */}
       {loading ? (
         <p className="text-sm text-gray-400 text-center py-6">Cargando cuentas…</p>
@@ -127,43 +164,6 @@ export default function CajaReport() {
           ))}
         </div>
       )}
-
-      {/* Cerrar Caja */}
-      <div className="pt-2">
-        {!confirm ? (
-          <button
-            onClick={() => setConfirm(true)}
-            disabled={cuentas.length === 0}
-            className="w-full py-3.5 rounded-xl font-semibold text-sm border-2 transition-all disabled:opacity-30"
-            style={{ borderColor: '#EF4444', color: '#EF4444' }}
-          >
-            Cerrar Caja
-          </button>
-        ) : (
-          <div className="rounded-xl border-2 border-red-200 p-4 space-y-3">
-            <p className="text-sm font-semibold text-gray-800 text-center">¿Confirmar cierre de caja?</p>
-            <p className="text-xs text-gray-500 text-center">
-              Se borrarán las {cuentas.length} cuentas del turno. Esta acción no se puede deshacer.
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setConfirm(false)}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gray-100 text-gray-600"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={handleCerrarCaja}
-                disabled={closing}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
-                style={{ background: '#EF4444' }}
-              >
-                {closing ? 'Cerrando…' : 'Confirmar'}
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
     </div>
   )
 }
