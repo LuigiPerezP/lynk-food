@@ -1,6 +1,6 @@
 # lynk.food
 
-Sistema de pedidos por QR para restaurantes. El cliente escanea un código QR en su mesa, ordena desde su celular y el pedido llega en tiempo real a cocina.
+Sistema de pedidos por QR para restaurantes. El cliente escanea un código QR en su mesa, ordena desde su celular y el pedido llega en tiempo real a cocina. Luis y nelson Kbron.
 
 ---
 
