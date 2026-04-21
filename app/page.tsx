@@ -41,7 +41,7 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-3 gap-3">
-            <Link href="/login?role=cocina"
+            <Link href="/cocina/login"
               className="flex flex-col items-center gap-2 rounded-2xl p-4 transition-all active:scale-95"
               style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
               <span className="text-2xl">🍳</span>
@@ -53,7 +53,7 @@ export default function Home() {
               <span className="text-2xl">🍽️</span>
               <span className="text-white text-xs font-semibold">Mesonero</span>
             </Link>
-            <Link href="/login?role=admin"
+            <Link href="/admin/login"
               className="flex flex-col items-center gap-2 rounded-2xl p-4 transition-all active:scale-95"
               style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
               <span className="text-2xl">⚙️</span>

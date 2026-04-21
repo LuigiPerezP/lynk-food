@@ -24,25 +24,21 @@ export async function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl
   const token = req.cookies.get(COOKIE_NAME)?.value
 
-  if (pathname.startsWith('/admin')) {
+  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
     const valid = await verifyToken(token, 'admin')
     if (!valid) {
       const url = req.nextUrl.clone()
-      url.pathname = '/login'
-      url.searchParams.set('role', 'admin')
-      url.searchParams.set('from', pathname)
+      url.pathname = '/admin/login'
       return NextResponse.redirect(url)
     }
   }
 
-  if (pathname.startsWith('/cocina')) {
+  if (pathname.startsWith('/cocina') && !pathname.startsWith('/cocina/login')) {
     const isAdmin = await verifyToken(token, 'admin')
     const isCocina = await verifyToken(token, 'cocina')
     if (!isAdmin && !isCocina) {
       const url = req.nextUrl.clone()
-      url.pathname = '/login'
-      url.searchParams.set('role', 'cocina')
-      url.searchParams.set('from', pathname)
+      url.pathname = '/cocina/login'
       return NextResponse.redirect(url)
     }
   }
