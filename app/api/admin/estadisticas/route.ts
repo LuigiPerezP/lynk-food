@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { verifyToken, COOKIE_NAME } from '@/lib/auth'
 import { supabaseAdmin } from '@/lib/supabase-admin'
 
 function startOf(period: string): string {
@@ -22,10 +21,6 @@ function startOf(period: string): string {
 const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'lynkfood'
 
 export async function GET(req: NextRequest) {
-  const token = req.cookies.get(COOKIE_NAME)?.value
-  const valid = await verifyToken(token, 'admin')
-  if (!valid) return NextResponse.json({ error: 'No autorizado' }, { status: 401 })
-
   const period = req.nextUrl.searchParams.get('period') ?? 'hoy'
   const desde = startOf(period)
 

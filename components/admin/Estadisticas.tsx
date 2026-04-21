@@ -33,8 +33,11 @@ export default function Estadisticas() {
   useEffect(() => {
     setLoading(true)
     fetch(`/api/admin/estadisticas?period=${period}`)
-      .then((r) => r.json())
-      .then((data) => { setStats(data); setLoading(false) })
+      .then(async (r) => {
+        const data = await r.json()
+        if (r.ok) setStats(data)
+        setLoading(false)
+      })
       .catch(() => setLoading(false))
   }, [period])
 
