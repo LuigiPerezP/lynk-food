@@ -60,7 +60,7 @@ export default function MenuManager({ restauranteId }: MenuManagerProps) {
       )
     }
     return (
-      <div key={item.id} className={`flex items-center gap-3 p-3 bg-white rounded-xl border transition-opacity ${!item.disponible ? 'opacity-50' : ''}`}>
+      <div key={item.id} className={`flex items-center gap-3 p-3 bg-white rounded-xl border`}>
         {item.imagen ? (
           <div className="relative w-8 h-8 rounded-lg overflow-hidden shrink-0 flex-none">
             <Image src={item.imagen} alt={item.nombre} fill className="object-cover" />
