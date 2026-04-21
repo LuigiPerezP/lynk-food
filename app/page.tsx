@@ -49,9 +49,9 @@ export default function Home() {
             </Link>
             <Link href="/mesonero/login"
               className="flex flex-col items-center gap-2 rounded-2xl p-4 transition-all active:scale-95"
-              style={{ background: 'rgba(16,185,129,0.15)', border: '1px solid rgba(16,185,129,0.35)' }}>
+              style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.15)' }}>
               <span className="text-2xl">🍽️</span>
-              <span className="text-xs font-semibold" style={{ color: '#6EE7B7' }}>Mesonero</span>
+              <span className="text-white text-xs font-semibold">Mesonero</span>
             </Link>
             <Link href="/login?role=admin"
               className="flex flex-col items-center gap-2 rounded-2xl p-4 transition-all active:scale-95"

@@ -153,11 +153,11 @@ function LoginForm() {
         <Link
           href="/mesonero/login"
           className="flex flex-col items-center gap-1.5 rounded-2xl p-4 mt-4 transition-all active:scale-95"
-          style={{ background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)' }}
+          style={{ background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.12)' }}
         >
           <span className="text-2xl">🍽️</span>
-          <span className="text-sm font-semibold" style={{ color: '#6EE7B7' }}>Mesonero</span>
-          <span className="text-xs" style={{ color: 'rgba(110,231,183,0.6)' }}>Acceso con PIN</span>
+          <span className="text-white text-sm font-semibold">Mesonero</span>
+          <span className="text-xs" style={{ color: 'rgba(255,255,255,0.45)' }}>Acceso con PIN</span>
         </Link>
       </div>
     </div>

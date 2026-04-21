@@ -37,7 +37,8 @@ export function useSubmitOrder() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mesa: String(params.mesa), items: params.items }),
-      }).catch(() => {})
+      }).then((r) => { if (!r.ok) r.json().then((e) => console.error('[cuentas]', e)) })
+        .catch((e) => console.error('[cuentas]', e))
 
       return data.id
     } catch (err) {
