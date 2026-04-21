@@ -4,14 +4,20 @@ import { useEffect, useState, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import type { MesaCuenta } from '@/lib/cuentas'
+import { useTasaBCV } from '@/lib/hooks/useTasaBCV'
 
-function formatPrice(n: number) {
+function formatUSD(n: number) {
   return n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+function formatBs(n: number) {
+  return n.toLocaleString('es-VE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 }
 
 export default function MesoneroPage() {
   const router = useRouter()
   const [cuentas, setCuentas] = useState<MesaCuenta[]>([])
+  const { tasa } = useTasaBCV()
   const [loading, setLoading] = useState(true)
 
   const load = useCallback(async () => {
@@ -91,8 +97,11 @@ export default function MesoneroPage() {
                     </p>
                   </div>
                   <div className="text-right">
-                    <p className="text-white font-bold text-xl">${formatPrice(cuenta.total)}</p>
-                    <p className="text-emerald-300/60 text-xs mt-0.5">Ver cuenta →</p>
+                    <p className="text-white font-bold text-xl">${formatUSD(cuenta.total)}</p>
+                    {tasa && (
+                      <p className="text-emerald-300 text-xs mt-0.5">Bs {formatBs(cuenta.total * tasa)}</p>
+                    )}
+                    <p className="text-emerald-300/40 text-xs mt-0.5">Ver cuenta →</p>
                   </div>
                 </div>
               </button>

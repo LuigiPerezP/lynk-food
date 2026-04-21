@@ -3,15 +3,21 @@
 import { useEffect, useState, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import type { MesaCuenta } from '@/lib/cuentas'
+import { useTasaBCV } from '@/lib/hooks/useTasaBCV'
 
-function formatPrice(n: number) {
+function formatUSD(n: number) {
   return n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+}
+
+function formatBs(n: number) {
+  return n.toLocaleString('es-VE', { minimumFractionDigits: 0, maximumFractionDigits: 0 })
 }
 
 export default function CuentaDetailPage() {
   const router = useRouter()
   const { id } = useParams<{ id: string }>()
   const [cuenta, setCuenta] = useState<MesaCuenta | null>(null)
+  const { tasa } = useTasaBCV()
   const [loading, setLoading] = useState(true)
   const [closing, setClosing] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
@@ -96,18 +102,24 @@ export default function CuentaDetailPage() {
                 </div>
               </div>
               <div className="text-right ml-4">
-                <p className="text-white text-sm font-semibold">${formatPrice(item.precio * item.cantidad)}</p>
-                <p className="text-emerald-300/60 text-xs">x{item.cantidad} · ${formatPrice(item.precio)}</p>
+                <p className="text-white text-sm font-semibold">${formatUSD(item.precio * item.cantidad)}</p>
+                {tasa && <p className="text-emerald-300/60 text-xs">Bs {formatBs(item.precio * item.cantidad * tasa)}</p>}
+                <p className="text-emerald-300/40 text-xs">x{item.cantidad} · ${formatUSD(item.precio)}</p>
               </div>
             </div>
           ))}
         </div>
 
         {/* Total */}
-        <div className="rounded-2xl px-4 py-4 flex items-center justify-between"
+        <div className="rounded-2xl px-4 py-4"
           style={{ background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.2)' }}>
-          <p className="text-white font-bold text-base">Total</p>
-          <p className="text-white font-bold text-2xl">${formatPrice(cuenta.total)}</p>
+          <div className="flex items-center justify-between">
+            <p className="text-white font-bold text-base">Total</p>
+            <p className="text-white font-bold text-2xl">${formatUSD(cuenta.total)}</p>
+          </div>
+          {tasa && (
+            <p className="text-right text-emerald-300 text-sm mt-0.5">Bs {formatBs(cuenta.total * tasa)}</p>
+          )}
         </div>
       </div>
 
