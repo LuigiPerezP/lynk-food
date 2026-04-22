@@ -9,6 +9,7 @@ interface SubmitParams {
   mesa: number
   items: OrderItem[]
   notas: string
+  clientId: string
 }
 
 export function useSubmitOrder() {
@@ -27,6 +28,7 @@ export function useSubmitOrder() {
           items: params.items,
           notas: params.notas,
           estado: 'nuevo',
+          client_id: params.clientId,
         })
         .select('id')
         .single()

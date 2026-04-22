@@ -28,6 +28,7 @@ export interface Order {
   items: OrderItem[]
   notas: string
   estado: OrderStatus
+  clientId?: string | null
   creadoEn: Date
   actualizadoEn: Date
 }

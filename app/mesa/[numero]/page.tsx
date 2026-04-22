@@ -1,18 +1,19 @@
 'use client'
 
-import { use, useState } from 'react'
+import { use, useEffect, useState } from 'react'
 import { useMenu } from '@/lib/hooks/useMenu'
 import { useCart } from '@/lib/hooks/useCart'
 import { useSubmitOrder } from '@/lib/hooks/useSubmitOrder'
 import { useCategorias } from '@/lib/hooks/useCategorias'
+import { useSessionOrders } from '@/lib/hooks/useSessionOrders'
+import { getClientId, clearClientId } from '@/lib/clientId'
 
 import MenuHeader from '@/components/menu/MenuHeader'
 import CategoryTabs from '@/components/menu/CategoryTabs'
 import MenuItemCard from '@/components/menu/MenuItemCard'
 import CartSummary from '@/components/menu/CartSummary'
 import OrderReview from '@/components/menu/OrderReview'
-import OrderTracking from '@/components/menu/OrderTracking'
-import { useTableOrders } from '@/lib/hooks/useTableOrders'
+import MyOrderPanel from '@/components/menu/MyOrderPanel'
 import MenuSkeleton from '@/components/menu/MenuSkeleton'
 import ErrorMessage from '@/components/shared/ErrorMessage'
 import EmptyState from '@/components/shared/EmptyState'
@@ -24,20 +25,49 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
   const { numero } = use(params)
   const mesa = parseInt(numero, 10)
 
+  const [clientId, setClientId] = useState('')
+  const [showMyOrder, setShowMyOrder] = useState(false)
+  const [cuentaCerradaVista, setCuentaCerradaVista] = useState(false)
+
+  useEffect(() => {
+    setClientId(getClientId(mesa))
+  }, [mesa])
+
   const { menu, loading: menuLoading, error: menuError, retry: retryMenu } = useMenu(RESTAURANTE_ID)
   const { secciones, getSubcats, leafCats } = useCategorias(RESTAURANTE_ID)
-  const { orders: activeOrders } = useTableOrders(RESTAURANTE_ID, mesa)
   const { items, total, totalItems, add, remove, clear, quantityOf, setNota } = useCart(mesa)
   const { submit, loading: submitting, error } = useSubmitOrder()
+
+  const {
+    pedidosMios,
+    pedidosMesa,
+    totalMio,
+    totalMesa,
+    cuentaRecienCerrada,
+    setCuentaRecienCerrada,
+  } = useSessionOrders(RESTAURANTE_ID, mesa, clientId)
 
   const [selectedSection, setSelectedSection] = useState<string | 'todos'>('todos')
   const [selectedSubcat, setSelectedSubcat] = useState<string | null>(null)
   const [notas, setNotas] = useState('')
   const [showCart, setShowCart] = useState(false)
   const [showReview, setShowReview] = useState(false)
-  const [showTracking, setShowTracking] = useState(false)
 
-  // Get all leaf cat IDs belonging to a section (for filtering)
+  // Auto-close goodbye screen after 10s
+  useEffect(() => {
+    if (!cuentaRecienCerrada || cuentaCerradaVista) return
+    const t = setTimeout(() => handleCerrarGoodbye(), 10_000)
+    return () => clearTimeout(t)
+  }, [cuentaRecienCerrada, cuentaCerradaVista])
+
+  function handleCerrarGoodbye() {
+    clearClientId(mesa)
+    setClientId(getClientId(mesa)) // genera nuevo ID
+    setCuentaRecienCerrada(false)
+    setCuentaCerradaVista(true)
+    setShowMyOrder(false)
+  }
+
   function getCatIdsForSection(seccionId: string): string[] {
     const subcats = getSubcats(seccionId)
     return subcats.length > 0
@@ -45,7 +75,6 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
       : [seccionId]
   }
 
-  // Resolve a cat ID to its display name
   function catNombre(id: string): string {
     return [...secciones, ...secciones.flatMap(s => getSubcats(s.id))]
       .find(c => c.id === id)?.nombre ?? ''
@@ -57,7 +86,6 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
     return menu.filter(i => getCatIdsForSection(selectedSection).includes(i.categoriaId))
   })()
 
-  // Groups for display: { section: nombre, subcats: [{header: nombre, items}] }
   const grupos = (() => {
     type Subgroup = { header: string; items: typeof menu }
     type Group = { section: string; subcats: Subgroup[] }
@@ -88,7 +116,6 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
       return g ? [g] : []
     }
 
-    // todos
     const result: Group[] = []
     const seen = new Set<string>()
     for (const seccion of secciones) {
@@ -104,25 +131,15 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
   })()
 
   async function handleSubmit() {
-    if (items.length === 0) return
-    const id = await submit({ restauranteId: RESTAURANTE_ID, mesa, items, notas })
+    if (items.length === 0 || !clientId) return
+    const id = await submit({ restauranteId: RESTAURANTE_ID, mesa, items, notas, clientId })
     if (id) {
       clear()
       setNotas('')
       setShowCart(false)
       setShowReview(false)
-      setShowTracking(true)
+      setShowMyOrder(true)
     }
-  }
-
-  if (showTracking) {
-    return (
-      <OrderTracking
-        restauranteId={RESTAURANTE_ID}
-        mesa={mesa}
-        onBack={() => setShowTracking(false)}
-      />
-    )
   }
 
   if (showReview) {
@@ -141,7 +158,9 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
     )
   }
 
-
+  // Badge: total items ordered in this session
+  const sessionItemsBadge = pedidosMesa.reduce((s, p) => s + p.items.reduce((si, i) => si + i.cantidad, 0), 0)
+  const hasActivePedido = pedidosMesa.some(p => p.estado === 'preparando' || p.estado === 'listo')
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -175,14 +194,12 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
               const multiSub = subcats.length > 1 || (subcats.length === 1 && subcats[0].header !== section)
               return (
                 <div key={section} className="mt-2">
-                  {/* Section header */}
                   <p className="text-base font-extrabold uppercase tracking-widest mb-3 mt-5 first:mt-0"
                     style={{ color: '#0D3BB5' }}>
                     {section.charAt(0).toUpperCase() + section.slice(1)}
                   </p>
                   {subcats.map(({ header, items: groupItems }) => (
                     <div key={header} className="mb-4">
-                      {/* Subcategory subheader */}
                       {multiSub && (
                         <p className="text-xs font-semibold uppercase tracking-widest mb-2 pl-1 text-gray-400">
                           {header.charAt(0).toUpperCase() + header.slice(1)}
@@ -210,16 +227,27 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
         </div>
       )}
 
-      {/* Botón Mis pedidos */}
-      {!showCart && activeOrders.length > 0 && (
-        <button onClick={() => setShowTracking(true)}
+      {/* Botón flotante "Mi pedido" */}
+      {!showCart && pedidosMesa.length > 0 && (
+        <button
+          onClick={() => setShowMyOrder(true)}
           className="fixed bottom-6 left-4 z-30 flex items-center gap-2 px-4 py-3 rounded-2xl shadow-lg text-white text-sm font-semibold"
-          style={{ background: 'linear-gradient(135deg, #059669, #10B981)', boxShadow: '0 4px 15px rgba(5,150,105,0.4)' }}>
+          style={{
+            background: 'linear-gradient(135deg, #059669, #10B981)',
+            boxShadow: '0 4px 15px rgba(5,150,105,0.4)',
+          }}
+        >
+          <span className="relative">
+            <span className="text-base">🧾</span>
+            {hasActivePedido && (
+              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-yellow-400 animate-pulse" />
+            )}
+          </span>
+          <span>Mi pedido</span>
           <span className="w-5 h-5 bg-white rounded-full flex items-center justify-center text-xs font-bold"
             style={{ color: '#059669' }}>
-            {activeOrders.length}
+            {sessionItemsBadge}
           </span>
-          <span>Mis pedidos</span>
         </button>
       )}
 
@@ -254,6 +282,41 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
           onRemove={remove}
           onNota={setNota}
         />
+      )}
+
+      {showMyOrder && (
+        <MyOrderPanel
+          mesa={mesa}
+          clientId={clientId}
+          pedidosMios={pedidosMios}
+          pedidosMesa={pedidosMesa}
+          totalMio={totalMio}
+          totalMesa={totalMesa}
+          onClose={() => setShowMyOrder(false)}
+        />
+      )}
+
+      {/* Pantalla de cierre de cuenta */}
+      {cuentaRecienCerrada && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 px-6">
+          <div className="bg-white rounded-3xl p-8 max-w-sm w-full text-center shadow-2xl">
+            <div className="text-6xl mb-4 animate-bounce">✅</div>
+            <h2 className="text-xl font-bold text-gray-900 mb-1">¡Gracias por tu visita!</h2>
+            <p className="text-gray-500 text-sm mb-6">Esperamos verte pronto</p>
+            {totalMesa > 0 && (
+              <p className="text-sm text-gray-400 mb-6">
+                Total de la mesa: <span className="font-semibold text-gray-700">${totalMesa.toFixed(2)}</span>
+              </p>
+            )}
+            <button
+              onClick={handleCerrarGoodbye}
+              className="w-full py-3 rounded-2xl font-semibold text-white text-sm"
+              style={{ background: 'linear-gradient(135deg, #059669, #10B981)' }}
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
       )}
     </div>
   )
