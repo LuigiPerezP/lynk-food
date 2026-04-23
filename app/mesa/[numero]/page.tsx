@@ -45,6 +45,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
     totalMesa,
     cuentaRecienCerrada,
     setCuentaRecienCerrada,
+    reload: reloadSession,
   } = useSessionOrders(RESTAURANTE_ID, mesa, clientId)
 
   const [selectedSection, setSelectedSection] = useState<string | 'todos'>('todos')
@@ -138,6 +139,7 @@ export default function MesaPage({ params }: { params: Promise<{ numero: string 
       setNotas('')
       setShowCart(false)
       setShowReview(false)
+      await reloadSession()
       setShowMyOrder(true)
     }
   }

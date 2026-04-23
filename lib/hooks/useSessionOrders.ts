@@ -109,5 +109,6 @@ export function useSessionOrders(restauranteId: string, mesa: number, clientId: 
     cuentaAbierta,
     cuentaRecienCerrada,
     setCuentaRecienCerrada,
+    reload,
   }
 }
