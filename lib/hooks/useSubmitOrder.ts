@@ -34,7 +34,7 @@ export function useSubmitOrder() {
         .single()
       if (err) throw err
 
-      fetch('/api/mesonero/cuentas', {
+      await fetch('/api/mesonero/cuentas', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ mesa: String(params.mesa), items: params.items }),
