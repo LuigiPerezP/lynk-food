@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 import LogoutButton from '@/components/shared/LogoutButton'
 
 interface KitchenHeaderProps {
@@ -38,6 +39,16 @@ export default function KitchenHeader({ isBoard, onToggleView, onAgotados }: Kit
 
       <div className="flex items-center gap-2">
         <span className="font-mono text-sm tabular-nums" style={{ color: '#93C5FD' }}>{time}</span>
+        <Link href="/admin"
+          className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-colors"
+          style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.12)' }}>
+          ⚙️ Admin
+        </Link>
+        <Link href="/mesonero"
+          className="flex items-center gap-1.5 text-xs px-3 py-1.5 rounded-lg transition-colors"
+          style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.12)' }}>
+          🧾 Mesonero
+        </Link>
         {onAgotados && (
           <button
             onClick={onAgotados}
@@ -61,6 +72,7 @@ export default function KitchenHeader({ isBoard, onToggleView, onAgotados }: Kit
         <LogoutButton
           className="text-xs px-3 py-1.5 rounded-lg transition-colors"
           style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.6)', border: '1px solid rgba(255,255,255,0.12)' }}
+          redirectTo="/cocina/login"
         />
       </div>
     </div>

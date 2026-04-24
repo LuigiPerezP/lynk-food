@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
+import Link from 'next/link'
 import LogoutButton from '@/components/shared/LogoutButton'
 
 const MenuBuilder = dynamic(() => import('@/components/admin/MenuBuilder'), { ssr: false })
@@ -45,8 +46,23 @@ export default function AdminPage() {
             <p className="text-xs mt-0.5" style={{ color: '#93C5FD' }}>lynk.food</p>
           </div>
         </div>
-        <LogoutButton className="text-xs px-3 py-1.5 rounded-lg transition-colors"
-          style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }} />
+        <div className="flex items-center gap-2">
+          <Link href="/cocina"
+            className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+            style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.12)' }}>
+            🍳 Cocina
+          </Link>
+          <Link href="/mesonero"
+            className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+            style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.12)' }}>
+            🧾 Mesonero
+          </Link>
+          <LogoutButton
+            className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+            style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)' }}
+            redirectTo="/admin/login"
+          />
+        </div>
       </div>
 
       {/* Tabs */}

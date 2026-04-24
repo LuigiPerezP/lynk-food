@@ -6,8 +6,10 @@ const mockItem = (overrides: Partial<MenuItem> = {}): MenuItem => ({
   nombre: 'Pabellón criollo',
   descripcion: 'Clásico venezolano',
   precio: 14,
+  categoriaId: 'cat-1',
   categoria: 'platos',
   disponible: true,
+  visible: true,
   emoji: '🍛',
   ...overrides,
 })

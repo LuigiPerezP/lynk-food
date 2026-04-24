@@ -1,10 +1,11 @@
 'use client'
 
 import { useEffect, useState, useCallback } from 'react'
-import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import Link from 'next/link'
 import type { MesaCuenta } from '@/lib/cuentas'
 import { useTasaBCV } from '@/lib/hooks/useTasaBCV'
+import LogoutButton from '@/components/shared/LogoutButton'
 
 function formatUSD(n: number) {
   return n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -15,7 +16,6 @@ function formatBs(n: number) {
 }
 
 export default function MesoneroPage() {
-  const router = useRouter()
   const [cuentas, setCuentas] = useState<MesaCuenta[]>([])
   const { tasa } = useTasaBCV()
   const [loading, setLoading] = useState(true)
@@ -30,11 +30,6 @@ export default function MesoneroPage() {
   }, [])
 
   useEffect(() => { load() }, [load])
-
-  async function handleLogout() {
-    await fetch('/api/mesonero/logout', { method: 'POST' })
-    router.push('/mesonero/login')
-  }
 
   return (
     <div className="min-h-screen" style={{ background: 'linear-gradient(160deg, #064E3B 0%, #065F46 40%, #0F766E 100%)' }}>
@@ -52,20 +47,29 @@ export default function MesoneroPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-<button
+          <button
             onClick={load}
             className="p-2 rounded-xl transition-colors"
             style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}
           >
             <span className="text-white text-sm">↻</span>
           </button>
-          <button
-            onClick={handleLogout}
+          <Link href="/admin"
+            className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+            style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.15)' }}>
+            ⚙️ Admin
+          </Link>
+          <Link href="/cocina"
+            className="text-xs px-3 py-1.5 rounded-lg transition-colors"
+            style={{ background: 'rgba(255,255,255,0.08)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.15)' }}>
+            🍳 Cocina
+          </Link>
+          <LogoutButton
+            endpoint="/api/mesonero/logout"
+            redirectTo="/mesonero/login"
             className="text-xs px-3 py-1.5 rounded-lg transition-colors"
             style={{ background: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.7)', border: '1px solid rgba(255,255,255,0.15)' }}
-          >
-            Cerrar sesión
-          </button>
+          />
         </div>
       </div>
 
@@ -83,10 +87,10 @@ export default function MesoneroPage() {
         ) : (
           <div className="space-y-3">
             {cuentas.map((cuenta) => (
-              <button
+              <Link
                 key={cuenta.id}
-                onClick={() => router.push(`/mesonero/cuenta/${cuenta.id}`)}
-                className="w-full text-left rounded-2xl p-4 transition-all active:scale-[0.98]"
+                href={`/mesonero/cuenta/${cuenta.id}`}
+                className="block w-full text-left rounded-2xl p-4 transition-all active:scale-[0.98]"
                 style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)', backdropFilter: 'blur(10px)' }}
               >
                 <div className="flex items-center justify-between">
@@ -104,7 +108,7 @@ export default function MesoneroPage() {
                     <p className="text-emerald-300/40 text-xs mt-0.5">Ver cuenta →</p>
                   </div>
                 </div>
-              </button>
+              </Link>
             ))}
           </div>
         )}

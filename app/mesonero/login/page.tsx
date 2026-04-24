@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation'
 import { useState, useRef, useEffect } from 'react'
 import Image from 'next/image'
+import Link from 'next/link'
 
 export default function MesoneroLoginPage() {
   const router = useRouter()
@@ -85,6 +86,10 @@ export default function MesoneroLoginPage() {
             </button>
           </form>
         </div>
+        <Link href="/" className="block text-center text-xs mt-5 transition-opacity hover:opacity-80"
+          style={{ color: 'rgba(255,255,255,0.4)' }}>
+          ← Inicio
+        </Link>
       </div>
     </div>
   )
