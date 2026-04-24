@@ -1,6 +1,6 @@
 'use client'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { supabase } from '../supabase'
 
 export interface CategoriaItem {
@@ -26,16 +26,16 @@ export function useCategorias(restauranteId: string) {
 
   useEffect(() => { fetchCategorias() }, [fetchCategorias])
 
-  const secciones = categorias.filter(c => !c.parent_id)
+  const secciones = useMemo(() => categorias.filter(c => !c.parent_id), [categorias])
 
-  function getSubcats(seccionId: string): CategoriaItem[] {
+  const getSubcats = useCallback((seccionId: string): CategoriaItem[] => {
     return categorias.filter(c => c.parent_id === seccionId)
-  }
+  }, [categorias])
 
   // Leaf categories: subcats, or sections with no subcats (for item assignment)
-  const leafCats = categorias.filter(c =>
+  const leafCats = useMemo(() => categorias.filter(c =>
     c.parent_id !== null || !categorias.some(s => s.parent_id === c.id)
-  )
+  ), [categorias])
 
   async function addCategoria(nombre: string, parentId?: string | null) {
     const siblings = categorias.filter(c => c.parent_id === (parentId ?? null))
