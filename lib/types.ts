@@ -11,6 +11,7 @@ export interface MenuItem {
   visible: boolean      // aparece en el menú del cliente
   emoji: string
   imagen?: string
+  orden?: number
 }
 
 export interface OrderItem {

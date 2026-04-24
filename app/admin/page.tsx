@@ -1,40 +1,34 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useCategorias } from '@/lib/hooks/useCategorias'
 import dynamic from 'next/dynamic'
 import Image from 'next/image'
 import LogoutButton from '@/components/shared/LogoutButton'
 
-const MenuManager = dynamic(() => import('@/components/admin/MenuManager'), { ssr: false })
-const CategoryManager = dynamic(() => import('@/components/admin/CategoryManager'), { ssr: false })
+const MenuBuilder = dynamic(() => import('@/components/admin/MenuBuilder'), { ssr: false })
 const TableManager = dynamic(() => import('@/components/admin/TableManager'), { ssr: false })
-const DailyReport = dynamic(() => import('@/components/admin/DailyReport'), { ssr: false })
 const CajaReport = dynamic(() => import('@/components/admin/CajaReport'), { ssr: false })
+const DailyReport = dynamic(() => import('@/components/admin/DailyReport'), { ssr: false })
 const PinManager = dynamic(() => import('@/components/admin/PinManager'), { ssr: false })
 const Estadisticas = dynamic(() => import('@/components/admin/Estadisticas'), { ssr: false })
 
 const RESTAURANTE_ID = process.env.NEXT_PUBLIC_RESTAURANTE_ID ?? 'lynkfood'
 
-type Tab = 'menu' | 'categorias' | 'mesas' | 'reportes' | 'estadisticas'
+type Tab = 'menu' | 'mesas' | 'reportes' | 'estadisticas'
 
 const TABS: { id: Tab; label: string; emoji: string }[] = [
-  { id: 'menu', label: 'Menú', emoji: '📋' },
-  { id: 'categorias', label: 'Categorías', emoji: '🗂️' },
-  { id: 'mesas', label: 'Mesas', emoji: '🪑' },
-  { id: 'reportes', label: 'Reportes', emoji: '📊' },
-  { id: 'estadisticas', label: 'Stats', emoji: '📈' },
+  { id: 'menu',        label: 'Menú',      emoji: '📋' },
+  { id: 'mesas',       label: 'Mesas',     emoji: '🪑' },
+  { id: 'reportes',    label: 'Reportes',  emoji: '📊' },
+  { id: 'estadisticas',label: 'Stats',     emoji: '📈' },
 ]
 
 export default function AdminPage() {
   const [tab, setTab] = useState<Tab>('menu')
   const [baseUrl, setBaseUrl] = useState('')
   const [reportKey, setReportKey] = useState(0)
-  const { secciones, getSubcats, addCategoria, deleteCategoria, renameCategoria } = useCategorias(RESTAURANTE_ID)
 
-  useEffect(() => {
-    setBaseUrl(window.location.origin)
-  }, [])
+  useEffect(() => { setBaseUrl(window.location.origin) }, [])
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -62,13 +56,9 @@ export default function AdminPage() {
             key={t.id}
             onClick={() => setTab(t.id)}
             className="flex items-center gap-1.5 px-4 py-3.5 text-sm font-semibold border-b-2 transition-colors whitespace-nowrap"
-            style={tab === t.id ? {
-              borderColor: '#1A6BFF',
-              color: '#0D3BB5',
-            } : {
-              borderColor: 'transparent',
-              color: '#9CA3AF',
-            }}
+            style={tab === t.id
+              ? { borderColor: '#1A6BFF', color: '#0D3BB5' }
+              : { borderColor: 'transparent', color: '#9CA3AF' }}
           >
             <span>{t.emoji}</span>
             <span>{t.label}</span>
@@ -77,10 +67,7 @@ export default function AdminPage() {
       </div>
 
       <div className="max-w-3xl mx-auto px-4 py-6">
-        {tab === 'menu' && <MenuManager restauranteId={RESTAURANTE_ID} />}
-        {tab === 'categorias' && (
-          <CategoryManager secciones={secciones} getSubcats={getSubcats} onAdd={addCategoria} onDelete={deleteCategoria} onRename={renameCategoria} />
-        )}
+        {tab === 'menu' && <MenuBuilder restauranteId={RESTAURANTE_ID} />}
         {tab === 'mesas' && (
           <div className="space-y-6">
             <TableManager baseUrl={baseUrl} />
@@ -89,7 +76,7 @@ export default function AdminPage() {
         )}
         {tab === 'reportes' && (
           <div className="space-y-8">
-            <CajaReport onClosed={() => setReportKey((k) => k + 1)} />
+            <CajaReport onClosed={() => setReportKey(k => k + 1)} />
             <DailyReport key={reportKey} restauranteId={RESTAURANTE_ID} />
           </div>
         )}

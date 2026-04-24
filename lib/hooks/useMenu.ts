@@ -17,9 +17,8 @@ export function useMenu(restauranteId: string, soloDisponibles = true) {
         .from('menu_items')
         .select('*')
         .eq('restaurante_id', restauranteId)
+        .order('orden', { ascending: true })
 
-      // Client view: show visible items (including agotados for display)
-      // Admin view: show all items
       if (soloDisponibles) query = query.eq('visible', true)
 
       const { data, error: err } = await query
@@ -35,6 +34,7 @@ export function useMenu(restauranteId: string, soloDisponibles = true) {
         visible: row.visible !== false,
         emoji: row.emoji ?? '🍽️',
         imagen: row.imagen ?? undefined,
+        orden: (row.orden as number) ?? 0,
       })))
     } catch (err) {
       setError(`No se pudo cargar el menú: ${err instanceof Error ? err.message : err}`)
@@ -45,7 +45,6 @@ export function useMenu(restauranteId: string, soloDisponibles = true) {
 
   useEffect(() => { fetchMenu() }, [fetchMenu])
 
-  // Realtime: reflect disponible/visible changes instantly
   useEffect(() => {
     const channel = supabase
       .channel(`menu_items:${restauranteId}`)
