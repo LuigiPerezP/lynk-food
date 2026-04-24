@@ -44,12 +44,14 @@ export function useSessionOrders(restauranteId: string, mesa: number, clientId: 
   }, [mesa])
 
   const fetchPedidos = useCallback(async (since: string) => {
+    // Subtract 2 minutes to catch pedidos inserted just before the account was created
+    const sinceWithBuffer = new Date(new Date(since).getTime() - 120_000).toISOString()
     const { data } = await supabase
       .from('pedidos')
       .select('*')
       .eq('restaurante_id', restauranteId)
       .eq('mesa', mesa)
-      .gte('created_at', since)
+      .gte('created_at', sinceWithBuffer)
       .order('created_at', { ascending: true })
     setPedidos((data ?? []).map(mapRow))
   }, [restauranteId, mesa])
