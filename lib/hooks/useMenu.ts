@@ -57,7 +57,7 @@ export function useMenu(restauranteId: string, soloDisponibles = true) {
         const row = payload.new as Record<string, unknown>
         setMenu((prev) => prev.map((item) =>
           item.id === row.id
-            ? { ...item, disponible: row.disponible as boolean, visible: row.visible !== false }
+            ? { ...item, disponible: row.disponible as boolean, visible: row.visible !== false, orden: row.orden as number }
             : item
         ).filter((item) => !soloDisponibles || item.visible))
       })
