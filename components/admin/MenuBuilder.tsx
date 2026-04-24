@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import Image from 'next/image'
 import {
   DndContext,
@@ -33,7 +33,7 @@ interface SectionNode extends CategoriaItem { subcats: SubcatNode[]; directItems
 type DragListeners = ReturnType<typeof useSortable>['listeners']
 type DragAttributes = ReturnType<typeof useSortable>['attributes']
 
-// ── Sortable wrapper (render prop for drag handle) ─────────────────────────
+// ── Sortable wrapper ───────────────────────────────────────────────────────
 function Sortable({ id, children }: {
   id: string
   children: (h: { listeners: DragListeners; attributes: DragAttributes }) => React.ReactNode
@@ -55,7 +55,6 @@ function DragHandle({ listeners, attributes }: { listeners: DragListeners; attri
       {...listeners}
       {...attributes}
       className="cursor-grab active:cursor-grabbing select-none touch-none text-gray-300 hover:text-gray-400 px-0.5 text-base leading-none"
-      title="Arrastrar para reordenar"
     >
       ⠿
     </span>
@@ -66,7 +65,7 @@ function DragHandle({ listeners, attributes }: { listeners: DragListeners; attri
 export default function MenuBuilder({ restauranteId }: { restauranteId: string }) {
   const { categorias, secciones, getSubcats, addCategoria, deleteCategoria, renameCategoria, refetch: refetchCats } = useCategorias(restauranteId)
   const { menu, retry: reloadMenu } = useMenu(restauranteId, false)
-  const { addItem, updateItem, toggleDisponible, deleteItem, saving, saveError } = useAdminMenu(restauranteId)
+  const { updateItem, toggleDisponible, deleteItem, saving, saveError } = useAdminMenu(restauranteId)
 
   const [sections, setSections] = useState<SectionNode[]>([])
   const [editingCat, setEditingCat] = useState<{ id: string; value: string } | null>(null)
@@ -81,7 +80,7 @@ export default function MenuBuilder({ restauranteId }: { restauranteId: string }
   const [deletedItemIds, setDeletedItemIds] = useState<Set<string>>(new Set())
   const [orderError, setOrderError] = useState<string | null>(null)
 
-  // Build tree from hook data
+  // Build tree
   useEffect(() => {
     const tree: SectionNode[] = [...secciones]
       .sort((a, b) => (a.orden ?? 0) - (b.orden ?? 0))
@@ -105,18 +104,22 @@ export default function MenuBuilder({ restauranteId }: { restauranteId: string }
     setSections(tree)
   }, [secciones, categorias, menu, deletedItemIds])
 
+  // Build type-lookup sets for onDragEnd routing
+  const sectionIdSet = useMemo(() => new Set(sections.map(s => s.id)), [sections])
+  const subcatIdSet = useMemo(() => new Set(sections.flatMap(s => s.subcats.map(sub => sub.id))), [sections])
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
-  // ── Order persistence ──────────────────────────────────────────────────
+  // ── Order save ─────────────────────────────────────────────────────────
   async function saveCatOrder(updates: { id: string; orden: number }[]) {
     const results = await Promise.allSettled(
       updates.map(({ id, orden }) => supabase.from('categorias').update({ orden }).eq('id', id))
     )
     if (results.some(r => r.status === 'rejected')) {
-      setOrderError('Error al guardar orden — recargando')
+      setOrderError('Error al guardar el orden')
       refetchCats()
     }
   }
@@ -126,64 +129,66 @@ export default function MenuBuilder({ restauranteId }: { restauranteId: string }
       updates.map(({ id, orden }) => supabase.from('menu_items').update({ orden }).eq('id', id))
     )
     if (results.some(r => r.status === 'rejected')) {
-      setOrderError('Error al guardar orden — recargando')
+      setOrderError('Error al guardar el orden')
       reloadMenu()
     }
   }
 
-  // ── DnD handlers ───────────────────────────────────────────────────────
-  function handleSectionDragEnd(event: DragEndEvent) {
+  // ── Single DragEnd handler — routes by type ────────────────────────────
+  function handleDragEnd(event: DragEndEvent) {
     const { active, over } = event
     if (!over || active.id === over.id) return
-    setSections(prev => {
-      const oi = prev.findIndex(s => s.id === active.id)
-      const ni = prev.findIndex(s => s.id === over.id)
-      const reordered = arrayMove(prev, oi, ni)
-      saveCatOrder(reordered.map((s, i) => ({ id: s.id, orden: i + 1 })))
-      return reordered
-    })
-  }
+    const activeId = active.id as string
+    const overId = over.id as string
 
-  function handleSubcatDragEnd(seccionId: string, event: DragEndEvent) {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    setSections(prev => prev.map(sec => {
-      if (sec.id !== seccionId) return sec
-      const oi = sec.subcats.findIndex(s => s.id === active.id)
-      const ni = sec.subcats.findIndex(s => s.id === over.id)
-      const reordered = arrayMove(sec.subcats, oi, ni)
-      saveCatOrder(reordered.map((s, i) => ({ id: s.id, orden: i + 1 })))
-      return { ...sec, subcats: reordered }
-    }))
-  }
-
-  function handleDirectItemDragEnd(seccionId: string, event: DragEndEvent) {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    setSections(prev => prev.map(sec => {
-      if (sec.id !== seccionId) return sec
-      const oi = sec.directItems.findIndex(i => i.id === active.id)
-      const ni = sec.directItems.findIndex(i => i.id === over.id)
-      const reordered = arrayMove(sec.directItems, oi, ni)
-      saveItemOrder(reordered.map((item, i) => ({ id: item.id, orden: i + 1 })))
-      return { ...sec, directItems: reordered }
-    }))
-  }
-
-  function handleSubItemDragEnd(subcatId: string, event: DragEndEvent) {
-    const { active, over } = event
-    if (!over || active.id === over.id) return
-    setSections(prev => prev.map(sec => ({
-      ...sec,
-      subcats: sec.subcats.map(sub => {
-        if (sub.id !== subcatId) return sub
-        const oi = sub.items.findIndex(i => i.id === active.id)
-        const ni = sub.items.findIndex(i => i.id === over.id)
-        const reordered = arrayMove(sub.items, oi, ni)
-        saveItemOrder(reordered.map((item, i) => ({ id: item.id, orden: i + 1 })))
-        return { ...sub, items: reordered }
-      }),
-    })))
+    if (sectionIdSet.has(activeId) && sectionIdSet.has(overId)) {
+      // Reorder sections
+      setSections(prev => {
+        const oi = prev.findIndex(s => s.id === activeId)
+        const ni = prev.findIndex(s => s.id === overId)
+        const reordered = arrayMove(prev, oi, ni)
+        saveCatOrder(reordered.map((s, i) => ({ id: s.id, orden: i + 1 })))
+        return reordered
+      })
+    } else if (subcatIdSet.has(activeId) && subcatIdSet.has(overId)) {
+      // Reorder subcats — only if in same parent section
+      setSections(prev => prev.map(sec => {
+        const hasA = sec.subcats.some(s => s.id === activeId)
+        const hasO = sec.subcats.some(s => s.id === overId)
+        if (!hasA || !hasO) return sec
+        const oi = sec.subcats.findIndex(s => s.id === activeId)
+        const ni = sec.subcats.findIndex(s => s.id === overId)
+        const reordered = arrayMove(sec.subcats, oi, ni)
+        saveCatOrder(reordered.map((s, i) => ({ id: s.id, orden: i + 1 })))
+        return { ...sec, subcats: reordered }
+      }))
+    } else {
+      // Reorder items — only within same category
+      setSections(prev => prev.map(sec => {
+        const hasADir = sec.directItems.some(i => i.id === activeId)
+        const hasODir = sec.directItems.some(i => i.id === overId)
+        if (hasADir && hasODir) {
+          const oi = sec.directItems.findIndex(i => i.id === activeId)
+          const ni = sec.directItems.findIndex(i => i.id === overId)
+          const reordered = arrayMove(sec.directItems, oi, ni)
+          saveItemOrder(reordered.map((item, i) => ({ id: item.id, orden: i + 1 })))
+          return { ...sec, directItems: reordered }
+        }
+        return {
+          ...sec,
+          subcats: sec.subcats.map(sub => {
+            const hasA = sub.items.some(i => i.id === activeId)
+            const hasO = sub.items.some(i => i.id === overId)
+            if (!hasA || !hasO) return sub
+            const oi = sub.items.findIndex(i => i.id === activeId)
+            const ni = sub.items.findIndex(i => i.id === overId)
+            const reordered = arrayMove(sub.items, oi, ni)
+            saveItemOrder(reordered.map((item, i) => ({ id: item.id, orden: i + 1 })))
+            return { ...sub, items: reordered }
+          }),
+        }
+      }))
+    }
   }
 
   // ── CRUD actions ───────────────────────────────────────────────────────
@@ -218,9 +223,7 @@ export default function MenuBuilder({ restauranteId }: { restauranteId: string }
 
   async function handleAddItemSave(data: Omit<MenuItem, 'id'>) {
     if (!addItemFor) return
-    const maxOrden = menu
-      .filter(i => i.categoriaId === addItemFor)
-      .reduce((m, i) => Math.max(m, i.orden ?? 0), 0)
+    const maxOrden = menu.filter(i => i.categoriaId === addItemFor).reduce((m, i) => Math.max(m, i.orden ?? 0), 0)
     await supabase.from('menu_items').insert({
       restaurante_id: restauranteId,
       nombre: data.nombre,
@@ -267,7 +270,7 @@ export default function MenuBuilder({ restauranteId }: { restauranteId: string }
     })))
   }
 
-  // ── Inline render helpers (not components — no hooks) ──────────────────
+  // ── Inline render helpers ──────────────────────────────────────────────
   function renderCatName(cat: CategoriaItem, bold?: boolean) {
     if (editingCat?.id === cat.id) {
       return (
@@ -299,20 +302,17 @@ export default function MenuBuilder({ restauranteId }: { restauranteId: string }
   }
 
   function renderItemRow(item: ItemNode, listeners: DragListeners, attributes: DragAttributes, indent: string) {
-    const isEditingPrice = editingPrice?.id === item.id
     return (
       <div className={`flex items-center gap-2 py-2 pr-3 border-b border-gray-50 last:border-0 bg-white ${indent}`}>
         <DragHandle listeners={listeners} attributes={attributes} />
-
         <div className="w-6 h-6 shrink-0 flex items-center justify-center rounded overflow-hidden bg-gray-50">
           {item.imagen
             ? <div className="relative w-6 h-6"><Image src={item.imagen} alt={item.nombre} fill className="object-cover" /></div>
             : <span className="text-xs">{item.emoji}</span>}
         </div>
-
         <p className="flex-1 text-sm text-gray-700 truncate min-w-0">{item.nombre}</p>
 
-        {isEditingPrice ? (
+        {editingPrice?.id === item.id ? (
           <div className="flex items-center gap-1 shrink-0">
             <span className="text-xs text-gray-400">$</span>
             <input
@@ -333,7 +333,6 @@ export default function MenuBuilder({ restauranteId }: { restauranteId: string }
         ) : (
           <button
             onClick={() => setEditingPrice({ id: item.id, value: String(item.precio) })}
-            title="Click para editar precio"
             className="text-sm font-bold text-gray-700 hover:text-blue-600 transition-colors shrink-0"
           >
             ${item.precio.toFixed(2)}
@@ -351,7 +350,7 @@ export default function MenuBuilder({ restauranteId }: { restauranteId: string }
           {item.disponible ? 'Ocultar' : 'Mostrar'}
         </button>
 
-        <button onClick={() => setEditingItem(item)} className="text-gray-300 hover:text-gray-600 text-sm shrink-0" title="Editar">✏️</button>
+        <button onClick={() => setEditingItem(item)} className="text-gray-300 hover:text-gray-600 text-sm shrink-0">✏️</button>
 
         {confirmDeleteItem === item.id ? (
           <div className="flex gap-1 shrink-0">
@@ -371,17 +370,18 @@ export default function MenuBuilder({ restauranteId }: { restauranteId: string }
       {(saveError || orderError) && (
         <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-xl px-4 py-3 flex items-center justify-between">
           <span>{saveError ?? orderError}</span>
-          {orderError && <button onClick={() => setOrderError(null)} className="underline text-xs">OK</button>}
+          {orderError && <button onClick={() => setOrderError(null)} className="underline text-xs ml-2">OK</button>}
         </div>
       )}
 
-      {/* Section-level DnD */}
-      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleSectionDragEnd}>
+      {/* Single DndContext — routes drops by ID type in onDragEnd */}
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+
         <SortableContext items={sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
           {sections.map(section => (
             <Sortable key={section.id} id={section.id}>
               {({ listeners: secL, attributes: secA }) => (
-                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+                <div className="bg-white rounded-xl border border-gray-200 overflow-hidden mb-3">
 
                   {/* Section header */}
                   <div className="flex items-center gap-2 px-3 py-2.5 bg-gray-50 border-b border-gray-100">
@@ -427,65 +427,52 @@ export default function MenuBuilder({ restauranteId }: { restauranteId: string }
                     </div>
                   )}
 
-                  {/* Subcat-level DnD */}
-                  {section.subcats.length > 0 && (
-                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => handleSubcatDragEnd(section.id, e)}>
-                      <SortableContext items={section.subcats.map(s => s.id)} strategy={verticalListSortingStrategy}>
-                        {section.subcats.map(sub => (
-                          <Sortable key={sub.id} id={sub.id}>
-                            {({ listeners: subL, attributes: subA }) => (
-                              <div className="border-b border-gray-50">
-
-                                {/* Subcat header */}
-                                <div className="flex items-center gap-2 px-4 py-2 bg-gray-50/50">
-                                  <DragHandle listeners={subL} attributes={subA} />
-                                  <span className="text-gray-300 text-xs shrink-0">└</span>
-                                  {renderCatName(sub)}
-                                  <div className="ml-auto flex items-center gap-1 shrink-0">
-                                    <button onClick={() => setAddItemFor(sub.id)} className="text-xs px-2 py-0.5 text-emerald-600 hover:bg-emerald-50 rounded-lg font-medium">+ plato</button>
-                                    {confirmDeleteCat === sub.id ? (
-                                      <div className="flex gap-1">
-                                        <button onClick={() => handleDeleteCat(sub.id)} className="text-xs text-red-600 font-semibold hover:underline">Eliminar</button>
-                                        <button onClick={() => setConfirmDeleteCat(null)} className="text-xs text-gray-500 hover:underline">No</button>
-                                      </div>
-                                    ) : (
-                                      <button onClick={() => setConfirmDeleteCat(sub.id)} className="text-gray-300 hover:text-red-400 text-sm">🗑️</button>
-                                    )}
+                  {/* Subcats */}
+                  <SortableContext items={section.subcats.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                    {section.subcats.map(sub => (
+                      <Sortable key={sub.id} id={sub.id}>
+                        {({ listeners: subL, attributes: subA }) => (
+                          <div className="border-b border-gray-50">
+                            <div className="flex items-center gap-2 px-4 py-2 bg-gray-50/50">
+                              <DragHandle listeners={subL} attributes={subA} />
+                              <span className="text-gray-300 text-xs shrink-0">└</span>
+                              {renderCatName(sub)}
+                              <div className="ml-auto flex items-center gap-1 shrink-0">
+                                <button onClick={() => setAddItemFor(sub.id)} className="text-xs px-2 py-0.5 text-emerald-600 hover:bg-emerald-50 rounded-lg font-medium">+ plato</button>
+                                {confirmDeleteCat === sub.id ? (
+                                  <div className="flex gap-1">
+                                    <button onClick={() => handleDeleteCat(sub.id)} className="text-xs text-red-600 font-semibold hover:underline">Eliminar</button>
+                                    <button onClick={() => setConfirmDeleteCat(null)} className="text-xs text-gray-500 hover:underline">No</button>
                                   </div>
-                                </div>
-
-                                {/* Item-level DnD inside subcat */}
-                                <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => handleSubItemDragEnd(sub.id, e)}>
-                                  <SortableContext items={sub.items.map(i => i.id)} strategy={verticalListSortingStrategy}>
-                                    {sub.items.map(item => (
-                                      <Sortable key={item.id} id={item.id}>
-                                        {({ listeners: iL, attributes: iA }) => renderItemRow(item, iL, iA, 'pl-14')}
-                                      </Sortable>
-                                    ))}
-                                  </SortableContext>
-                                </DndContext>
-
-                                {sub.items.length === 0 && (
-                                  <p className="text-xs text-gray-400 pl-14 py-2">Sin platos</p>
+                                ) : (
+                                  <button onClick={() => setConfirmDeleteCat(sub.id)} className="text-gray-300 hover:text-red-400 text-sm">🗑️</button>
                                 )}
                               </div>
-                            )}
-                          </Sortable>
-                        ))}
-                      </SortableContext>
-                    </DndContext>
-                  )}
+                            </div>
 
-                  {/* Direct items DnD (section with no subcats, or items assigned directly) */}
-                  <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={e => handleDirectItemDragEnd(section.id, e)}>
-                    <SortableContext items={section.directItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
-                      {section.directItems.map(item => (
-                        <Sortable key={item.id} id={item.id}>
-                          {({ listeners: iL, attributes: iA }) => renderItemRow(item, iL, iA, 'pl-8')}
-                        </Sortable>
-                      ))}
-                    </SortableContext>
-                  </DndContext>
+                            {/* Items in subcat */}
+                            <SortableContext items={sub.items.map(i => i.id)} strategy={verticalListSortingStrategy}>
+                              {sub.items.map(item => (
+                                <Sortable key={item.id} id={item.id}>
+                                  {({ listeners: iL, attributes: iA }) => renderItemRow(item, iL, iA, 'pl-14')}
+                                </Sortable>
+                              ))}
+                            </SortableContext>
+                            {sub.items.length === 0 && <p className="text-xs text-gray-400 pl-14 py-2">Sin platos</p>}
+                          </div>
+                        )}
+                      </Sortable>
+                    ))}
+                  </SortableContext>
+
+                  {/* Direct items */}
+                  <SortableContext items={section.directItems.map(i => i.id)} strategy={verticalListSortingStrategy}>
+                    {section.directItems.map(item => (
+                      <Sortable key={item.id} id={item.id}>
+                        {({ listeners: iL, attributes: iA }) => renderItemRow(item, iL, iA, 'pl-8')}
+                      </Sortable>
+                    ))}
+                  </SortableContext>
 
                   {section.subcats.length === 0 && section.directItems.length === 0 && (
                     <p className="text-xs text-gray-400 px-4 py-2.5">Sin platos — usa &quot;+ plato&quot; o &quot;+ subcat&quot;</p>
@@ -495,9 +482,10 @@ export default function MenuBuilder({ restauranteId }: { restauranteId: string }
             </Sortable>
           ))}
         </SortableContext>
+
       </DndContext>
 
-      {/* New section input */}
+      {/* New section */}
       {newSeccionInput ? (
         <div className="flex gap-2">
           <input
