@@ -51,7 +51,7 @@ function LoginForm() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl mb-4 shadow-xl"
             style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.15)' }}>
-            <Image src="/logo.png" alt="lynkfood" width={44} height={44} className="object-contain" />
+            <Image src="/logo.png" alt="lynkfood" width={44} height={44} className="object-contain" priority />
           </div>
           <h1 className="text-2xl font-bold text-white">lynk<span style={{ color: '#93C5FD' }}>.food</span></h1>
           <p className="text-blue-300 text-sm mt-1">Acceso al panel</p>
